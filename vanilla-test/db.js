@@ -258,10 +258,65 @@
       };
     }
 
+    /*
+      Totals each category for one month, expressed in the requested
+      currency. Unlike getReport, every row must be converted here because
+      the slices of a pie chart have to share one unit.
+    */
+    function getCategoryTotals(currency, year, month) {
+      const report = getReport(currency, year, month);
+      const byCategory = {};
+
+      // Accumulate each row's converted value into its category's running total.
+      report.costs.forEach((row) => {
+        const value = convert(row.sum, row.currency, currency);
+        const running = byCategory[row.category] === undefined
+          ? 0
+          : byCategory[row.category];
+        byCategory[row.category] = running + value;
+      });
+
+      // Transform the accumulated totals into the [{category, total}] shape.
+      return Object.keys(byCategory).map((category) => {
+        return { category: category, total: roundMoney(byCategory[category]) };
+      });
+    }
+
+    // Every distinct category ever stored, for the suggestion list on the
+    // entry form. Deliberately currency free so it cannot throw when the
+    // exchange rates have not arrived yet.
+    function getCategories() {
+      const seen = {};
+      readCosts(key).forEach((item) => {
+        seen[item.category] = true;
+      });
+      return Object.keys(seen);
+    }
+
+    // Twelve monthly totals for one year. Built from getReport so the
+    // currency arithmetic lives in a single place. Note that getReport
+    // uses month 1-12 while the returned array is indexed 0-11, so January
+    // (month 1) is stored at index 0.
+    function getMonthlyTotals(currency, year) {
+      const totals = [];
+      let month = 1;
+      // Loop through each month and fetch its report total from getReport.
+      while (month <= 12) {
+        totals.push(getReport(currency, year, month).total.sum);
+        month = month + 1;
+      }
+      return totals;
+    }
+
+    // Expose the public methods of this database instance.
     return {
       addCost: addCost,
-      getReport: getReport
+      getReport: getReport,
+      getCategoryTotals: getCategoryTotals,
+      getMonthlyTotals: getMonthlyTotals,
+      getCategories: getCategories
     };
+    // End of openCostsDB factory function.
   }
 
   // Accepts the rates map fetched by src/api/rates.js. Rejecting a bad

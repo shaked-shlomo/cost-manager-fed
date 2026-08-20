@@ -148,6 +148,30 @@
     check('totals round to two decimals',
       rr.getReport('USD', yearNow, monthNow).total.sum === 29.41);
 
+    // ---- chart aggregations ----
+    root.localStorage.clear();
+    const ab = db.openCostsDB('costsdb', 1);
+    db.setExchangeRates({ USD: 1, GBP: 0.5, EURO: 0.7, ILS: 3.4 });
+    ab.addCost({ sum: 100, currency: 'USD', category: 'Food', description: 'a' });
+    ab.addCost({ sum: 50, currency: 'USD', category: 'Food', description: 'b' });
+    ab.addCost({ sum: 10, currency: 'GBP', category: 'Car', description: 'c' });
+
+    const totals = ab.getCategoryTotals('USD', yearNow, monthNow);
+    check('two categories are grouped', totals.length === 2);
+    const foodRow = totals.filter((row) => row.category === 'Food')[0];
+    check('food totals 150', foodRow.total === 150);
+    const carRow = totals.filter((row) => row.category === 'Car')[0];
+    check('car converts 10 GBP to 20 USD', carRow.total === 20);
+
+    const monthly = ab.getMonthlyTotals('USD', yearNow);
+    check('monthly totals has twelve entries', monthly.length === 12);
+    check('the current month holds the total', monthly[monthNow - 1] === 170);
+    check('other months are zero', monthly[monthNow === 1 ? 11 : 0] === 0);
+
+    const categories = ab.getCategories();
+    check('getCategories lists both categories', categories.length === 2);
+    check('getCategories needs no rates', categories.indexOf('Car') !== -1);
+
     return { passed: passed, failed: failed, lines: lines };
   }
 
