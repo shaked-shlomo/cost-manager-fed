@@ -265,7 +265,15 @@
     */
     function getCategoryTotals(currency, year, month) {
       const report = getReport(currency, year, month);
-      const byCategory = {};
+      /*
+        Object.create(null) rather than {} on purpose. A plain object
+        inherits from Object.prototype, so a category literally named
+        constructor or toString would read back an inherited member as
+        its running total, and one named __proto__ would hit the setter
+        and never be stored at all. Either way the chart would silently
+        disagree with the report total. A null prototype has no such keys.
+      */
+      const byCategory = Object.create(null);
 
       // Accumulate each row's converted value into its category's running total.
       report.costs.forEach((row) => {
@@ -286,7 +294,9 @@
     // entry form. Deliberately currency free so it cannot throw when the
     // exchange rates have not arrived yet.
     function getCategories() {
-      const seen = {};
+      // Null prototype for the same reason as in getCategoryTotals: a
+      // category named __proto__ is dropped by a plain object literal.
+      const seen = Object.create(null);
       readCosts(key).forEach((item) => {
         seen[item.category] = true;
       });
@@ -300,7 +310,8 @@
     function getMonthlyTotals(currency, year) {
       const totals = [];
       let month = 1;
-      // Loop through each month and fetch its report total from getReport.
+      // Reusing getReport for each month keeps the month filtering and
+      // the currency arithmetic in one place instead of two.
       while (month <= 12) {
         totals.push(getReport(currency, year, month).total.sum);
         month = month + 1;
@@ -312,11 +323,12 @@
     return {
       addCost: addCost,
       getReport: getReport,
+      // The three below are extras. The project document's Q&A permits
+      // functions beyond the ones it names, and the charts need these.
       getCategoryTotals: getCategoryTotals,
       getMonthlyTotals: getMonthlyTotals,
       getCategories: getCategories
     };
-    // End of openCostsDB factory function.
   }
 
   // Accepts the rates map fetched by src/api/rates.js. Rejecting a bad

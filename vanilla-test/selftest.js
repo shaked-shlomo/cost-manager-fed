@@ -172,6 +172,23 @@
     check('getCategories lists both categories', categories.length === 2);
     check('getCategories needs no rates', categories.indexOf('Car') !== -1);
 
+    // Category names are free text, so a user can type one that collides
+    // with an inherited Object.prototype member. Both aggregation maps use a
+    // null prototype so those names behave like any other.
+    root.localStorage.clear();
+    const pb = db.openCostsDB('costsdb', 1);
+    pb.addCost({ sum: 10, currency: 'USD', category: 'constructor', description: 'a' });
+    pb.addCost({ sum: 20, currency: 'USD', category: '__proto__', description: 'b' });
+    const proto = pb.getCategoryTotals('USD', yearNow, monthNow);
+    const protoTotal = proto.reduce((running, row) => running + row.total, 0);
+
+    // Before the fix, constructor totalled NaN and __proto__ vanished from
+    // both results while its sum still counted toward the report total.
+    check('prototype named categories still total correctly', protoTotal === 30);
+    check('prototype named categories are not dropped', proto.length === 2);
+    check('getCategories keeps a __proto__ category',
+      pb.getCategories().indexOf('__proto__') !== -1);
+
     return { passed: passed, failed: failed, lines: lines };
   }
 
