@@ -74,6 +74,8 @@ function checkSentinels(label, source, allowVanillaOnly) {
     problems.push(label + ' has unbalanced vanilla only markers: ' +
       vanillaStarts + ' begin, ' + vanillaEnds + ' end');
   }
+  // The module version must never fetch, so a vanilla only block there
+  // would be hiding logic from the comparison rather than packaging.
   if (allowVanillaOnly === false && vanillaStarts > 0) {
     problems.push(label + ' carries ' + vanillaStarts +
       ' vanilla only block(s); the module version must have none');
