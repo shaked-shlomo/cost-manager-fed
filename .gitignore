@@ -37,3 +37,6 @@ logs/
 .env
 .env.*
 !.env.example
+
+# Local dev-server config for the Claude browser pane, not part of the project
+.claude/
