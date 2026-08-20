@@ -18,15 +18,30 @@ let requestSequence = 0;
 let timerId = null;
 const listeners = [];
 
+/*
+  notify runs after refreshRates has finished its own try/catch, and
+  refreshRates is deliberately called without await. A listener that threw
+  would therefore abandon every later listener and reject that floating
+  promise, which the browser reports as an unhandled rejection. Isolating
+  each listener keeps one broken subscriber from taking the rest with it.
+*/
 function notify() {
-  listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => {
+    try {
+      listener();
+    } catch (error) {
+      // A subscriber's own failure is not the rates service's problem.
+    }
+  });
 }
 
-// Subscribe to rate changes and return an unsubscribe function
+// The returned function is how a caller detaches again, which React needs
+// as the cleanup of the effect that subscribed in the first place.
 function subscribe(listener) {
   listeners.push(listener);
-  // Return function that removes listener from the array
   return function unsubscribe() {
+    // indexOf matches by identity, so subscribing the same function twice
+    // would need two calls to detach it. Callers subscribe once.
     const index = listeners.indexOf(listener);
     if (index !== -1) {
       listeners.splice(index, 1);
@@ -34,9 +49,9 @@ function subscribe(listener) {
   };
 }
 
-// Return the current state of the rates service
+// Read as one snapshot so a component never sees a half updated status,
+// for example a 'ready' paired with the previous timestamp.
 function getRatesState() {
-  // Build object from module state and current URL setting
   return {
     status: status,
     lastUpdatedAt: lastUpdatedAt,
@@ -58,10 +73,11 @@ function validateRates(payload) {
     throw failure('RATES_BAD_SHAPE',
       'the exchange rates response is not an object');
   }
-  // Ensure each required currency exists and is a positive finite number
+  // A rate of zero or below would make convert divide by zero or return a
+  // negative amount, so an incomplete payload is rejected outright rather
+  // than half applied.
   REQUIRED_CURRENCIES.forEach((currency) => {
     const value = payload[currency];
-    // Check that the currency is a valid positive finite number
     if (typeof value !== 'number' || Number.isFinite(value) === false
         || value <= 0) {
       throw failure('RATES_BAD_SHAPE',
@@ -101,13 +117,15 @@ async function refreshRates() {
     if (mySequence !== requestSequence) {
       return;
     }
-    // Rates are valid; commit them to the database and mark as ready
+    // Pushing into the library is what lets getReport stay synchronous.
+    // Nothing is persisted here: rates are refetched on every page load.
     setExchangeRates(payload);
     status = 'ready';
     lastUpdatedAt = new Date();
     lastError = null;
   } catch (error) {
-    // Check if this request is still the newest before updating state
+    // Same guard as the success path: a stale failure must not overwrite
+    // the status of a newer request that has already succeeded.
     if (mySequence !== requestSequence) {
       return;
     }
@@ -143,7 +161,6 @@ export {
   startRates,
   refreshRates,
   setRatesUrl,
-  // Query and listen for state changes
   getRatesState,
   subscribe,
   RATES_REFRESH_INTERVAL_MS
