@@ -41,7 +41,14 @@ function stripCrossOrigin() {
       // remove the attribute whether or not it carries a value
       const withoutCrossOrigin = html.replace(/\scrossorigin(=["'][^"']*["'])?/g, '');
       // restore the XHTML 1.0 Strict doctype for the emitted file
-      return withoutCrossOrigin.replace(/^<!DOCTYPE html>/, XHTML_DOCTYPE);
+      const restored = withoutCrossOrigin.replace(/^<!DOCTYPE html>/, XHTML_DOCTYPE);
+      // Fail loudly if restore did not match; silent no-op would ship wrong doctype.
+      if (restored === withoutCrossOrigin) {
+        throw new Error(
+          'XHTML doctype restore failed: dist/index.html would ship bare HTML5 doctype'
+        );
+      }
+      return restored;
     }
   };
 }
