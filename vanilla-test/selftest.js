@@ -78,6 +78,39 @@
       codeOf(() => ob.addCost({ sum: 1, currency: 'USD', category: '', description: 'b' }))
         === 'CATEGORY_NOT_STRING');
 
+    // ---- getReport ----
+    root.localStorage.clear();
+    const rb = db.openCostsDB('costsdb', 1);
+    rb.addCost({ sum: 200, currency: 'USD', category: 'Food', description: 'Milk 3%' });
+    rb.addCost({ sum: 50, currency: 'USD', category: 'Car', description: 'fuel' });
+
+    const now = new Date();
+    const report = rb.getReport('USD', now.getFullYear(), now.getMonth() + 1);
+    check('report carries the year', report.year === now.getFullYear());
+    check('report carries a 1 based month', report.month === now.getMonth() + 1);
+    check('report lists both costs', report.costs.length === 2);
+    check('report total is 250', report.total.sum === 250);
+    check('report total names the currency', report.total.currency === 'USD');
+
+    const firstRow = report.costs[0];
+    check('report row has exactly five keys', Object.keys(firstRow).length === 5);
+    check('report row date is day only',
+      Object.keys(firstRow.date).length === 1 && typeof firstRow.date.day === 'number');
+    check('report row keeps its own currency', firstRow.currency === 'USD');
+
+    const defaulted = rb.getReport('USD');
+    check('getReport defaults to the current month', defaulted.month === now.getMonth() + 1);
+    check('getReport defaults to the current year', defaulted.year === now.getFullYear());
+
+    const empty = rb.getReport('USD', 1999, 1);
+    check('a month with no costs reports zero', empty.total.sum === 0);
+    check('a month with no costs has no rows', empty.costs.length === 0);
+
+    check('getReport rejects month 13',
+      codeOf(() => rb.getReport('USD', 2026, 13)) === 'REPORT_MONTH_INVALID');
+    check('getReport rejects a non numeric year',
+      codeOf(() => rb.getReport('USD', 'x', 1)) === 'REPORT_YEAR_INVALID');
+
     return { passed: passed, failed: failed, lines: lines };
   }
 

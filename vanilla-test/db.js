@@ -113,6 +113,36 @@
     }
   }
 
+  // Money is rounded to two decimals so float division noise never
+  // surfaces in a total the user reads.
+  function roundMoney(value) {
+    return Math.round(value * 100) / 100;
+  }
+
+  function validateReportArguments(currency, year, month) {
+    if (typeof currency !== 'string' || currency.length === 0) {
+      throw failure('REPORT_CURRENCY_INVALID',
+        'currency must be a non-empty string');
+    }
+    if (typeof year !== 'number' || Number.isFinite(year) === false) {
+      throw failure('REPORT_YEAR_INVALID', 'year must be a number');
+    }
+    if (typeof month !== 'number' || Number.isFinite(month) === false ||
+        month < 1 || month > 12) {
+      throw failure('REPORT_MONTH_INVALID',
+        'month must be a number between 1 and 12');
+    }
+  }
+
+  // Converts a sum between currencies. Task 4 adds the rate lookup.
+  function convert(sum, fromCurrency, toCurrency) {
+    if (fromCurrency === toCurrency) {
+      return sum;
+    }
+    throw failure('RATES_NOT_LOADED',
+      'exchange rates are not available yet');
+  }
+
   function openCostsDB(databaseName, databaseVersion) {
     // databaseName must be a non-empty string to avoid key collisions.
     if (typeof databaseName !== 'string' || databaseName.length === 0) {
@@ -151,8 +181,50 @@
       };
     }
 
+    /*
+      Builds the monthly report. Note that the individual rows keep their
+      original sum and currency exactly as they were saved. Only the total
+      is expressed in the requested currency. This mirrors the worked
+      example in the project document, where a 120 GBP row stays 120 GBP
+      while the total is reported in USD.
+    */
+    function getReport(currency, year, month) {
+      const today = todayParts();
+      const useYear = year === undefined ? today.year : year;
+      const useMonth = month === undefined ? today.month : month;
+      validateReportArguments(currency, useYear, useMonth);
+
+      const costs = readCosts(key);
+      const rows = [];
+      let total = 0;
+
+      // Filter costs by year and month, building report rows with only
+      // the five required keys: sum, currency, category, description, date.
+      costs.forEach((item) => {
+        if (item.date.year !== useYear || item.date.month !== useMonth) {
+          return;
+        }
+        rows.push({
+          sum: item.sum,
+          currency: item.currency,
+          category: item.category,
+          description: item.description,
+          date: { day: item.date.day }
+        });
+        total = total + convert(item.sum, item.currency, currency);
+      });
+
+      return {
+        year: useYear,
+        month: useMonth,
+        costs: rows,
+        total: { currency: currency, sum: roundMoney(total) }
+      };
+    }
+
     return {
-      addCost: addCost
+      addCost: addCost,
+      getReport: getReport
     };
   }
 
