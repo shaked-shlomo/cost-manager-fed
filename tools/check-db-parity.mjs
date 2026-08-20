@@ -31,8 +31,67 @@ function normalise(source) {
     .join('\n');
 }
 
-const vanilla = normalise(fs.readFileSync('vanilla-test/db.js', 'utf8'));
-const module_ = normalise(fs.readFileSync('src/db/db.js', 'utf8'));
+const vanillaSource = fs.readFileSync('vanilla-test/db.js', 'utf8');
+const moduleSource = fs.readFileSync('src/db/db.js', 'utf8');
+
+/*
+  The two sentinel pairs are holes in this check: anything inside one is
+  stripped before comparison, so logic hidden in a block would drift
+  unnoticed and this tool would still report PASS. Contain them before
+  comparing anything. Each file gets exactly one packaging block and it
+  must sit in the header, and only the vanilla file may carry vanilla
+  only blocks at all.
+*/
+const HEADER_LINE_LIMIT = 20;
+
+function countOccurrences(source, needle) {
+  return source.split(needle).length - 1;
+}
+
+function checkSentinels(label, source, allowVanillaOnly) {
+  const problems = [];
+
+  // One packaging block per file, no more and no fewer.
+  const packagingStarts = countOccurrences(source, '// --- packaging: begin ---');
+  const packagingEnds = countOccurrences(source, '// --- packaging: end ---');
+  if (packagingStarts !== 1 || packagingEnds !== 1) {
+    problems.push(label + ' has ' + packagingStarts + ' packaging begin and ' +
+      packagingEnds + ' packaging end markers, expected exactly 1 of each');
+  }
+
+  // Packaging prose belongs in the header. Anywhere else it is a hiding place.
+  const beforeMarker = source.split('// --- packaging: begin ---')[0];
+  const markerLine = beforeMarker.split('\n').length;
+  if (packagingStarts === 1 && markerLine > HEADER_LINE_LIMIT) {
+    problems.push(label + ' opens its packaging block at line ' + markerLine +
+      ', past the header limit of ' + HEADER_LINE_LIMIT);
+  }
+
+  // Only the vanilla file fetches, so only it may carry vanilla only blocks.
+  const vanillaStarts = countOccurrences(source, '// --- vanilla only: begin ---');
+  const vanillaEnds = countOccurrences(source, '// --- vanilla only: end ---');
+  if (vanillaStarts !== vanillaEnds) {
+    problems.push(label + ' has unbalanced vanilla only markers: ' +
+      vanillaStarts + ' begin, ' + vanillaEnds + ' end');
+  }
+  if (allowVanillaOnly === false && vanillaStarts > 0) {
+    problems.push(label + ' carries ' + vanillaStarts +
+      ' vanilla only block(s); the module version must have none');
+  }
+  return problems;
+}
+
+const sentinelProblems = checkSentinels('vanilla-test/db.js', vanillaSource, true)
+  .concat(checkSentinels('src/db/db.js', moduleSource, false));
+
+if (sentinelProblems.length > 0) {
+  console.log('FAIL  the parity sentinels are not contained');
+  sentinelProblems.forEach((problem) => console.log('  ' + problem));
+  process.exit(1);
+}
+
+const vanilla = normalise(vanillaSource);
+const module_ = normalise(moduleSource);
 
 if (vanilla === module_) {
   console.log('PASS  the two db.js versions carry identical logic');

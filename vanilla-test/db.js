@@ -7,7 +7,7 @@
   with a plain script element adds the db property to the global object,
   as the project document requires. Its twin, src/db/db.js, holds the
   same logic packaged as an ES module for the React application, and
-  tools/check-db-parity.mjs fails the build if the two ever drift apart.
+  tools/check-db-parity.mjs fails npm test if the two ever drift apart.
 */
 // --- packaging: end ---
 (function (root) {

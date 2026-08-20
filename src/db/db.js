@@ -8,7 +8,7 @@
   fetching and pushes rates in through setExchangeRates, so this file
   cannot race with a rates URL the user chose in the settings screen.
   Its twin, vanilla-test/db.js, holds the same logic packaged for a plain
-  script element, and tools/check-db-parity.mjs fails the build if the
+  script element, and tools/check-db-parity.mjs fails npm test if the
   two ever drift apart.
 */
 // --- packaging: end ---
