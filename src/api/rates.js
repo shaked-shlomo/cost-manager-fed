@@ -55,11 +55,15 @@ function getRatesState() {
   return {
     status: status,
     lastUpdatedAt: lastUpdatedAt,
+    // Read from settings rather than cached, so the panel shows the URL
+    // actually in force even if it changed since the last fetch.
     url: getRatesUrl(),
     error: lastError
   };
 }
 
+// Errors carry a code because the UI switches on it to choose which
+// message to show and where to place it.
 function failure(code, message) {
   const error = new Error(message);
   error.code = code;
