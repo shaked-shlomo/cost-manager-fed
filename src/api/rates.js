@@ -80,6 +80,8 @@ function validateRates(payload) {
     const value = payload[currency];
     if (typeof value !== 'number' || Number.isFinite(value) === false
         || value <= 0) {
+      // Naming the currency makes the Settings error actionable: the user
+      // learns which key their own JSON is missing.
       throw failure('RATES_BAD_SHAPE',
         'the exchange rates response is missing a currency: ' + currency);
     }
