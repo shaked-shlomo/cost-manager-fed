@@ -23,10 +23,12 @@
   // localStorage is unavailable in some privacy modes, so probe it once
   // rather than letting a SecurityError escape from an unrelated call.
   function storage() {
+    // Check for localStorage availability to catch SecurityError early.
     try {
       const probe = root.localStorage;
       probe.getItem('costmanager_probe');
       return probe;
+    // Handle storage unavailable in privacy mode or older browsers.
     } catch (error) {
       throw failure('STORAGE_UNAVAILABLE',
         'localStorage is not available in this browser');
@@ -70,6 +72,7 @@
   }
 
   function writeCosts(key, costs) {
+    // Serialize and save the costs array; catch storage-full errors.
     try {
       storage().setItem(key, JSON.stringify(costs));
     } catch (error) {
@@ -81,6 +84,7 @@
   // Capture the date in local time. Deriving month from an ISO string
   // would use UTC and drop costs added near midnight into the wrong month.
   function todayParts() {
+    // Fetch current date; add 1 to month since getMonth() returns 0-11.
     const now = new Date();
     return {
       year: now.getFullYear(),
@@ -120,13 +124,16 @@
   }
 
   function validateReportArguments(currency, year, month) {
+    // Currency must be a string to look it up and match costs in reports.
     if (typeof currency !== 'string' || currency.length === 0) {
       throw failure('REPORT_CURRENCY_INVALID',
         'currency must be a non-empty string');
     }
+    // Year must be a number to index the cost records by calendar date.
     if (typeof year !== 'number' || Number.isFinite(year) === false) {
       throw failure('REPORT_YEAR_INVALID', 'year must be a number');
     }
+    // Month range check enforces calendar validity; months are 1-12, not 0-11.
     if (typeof month !== 'number' || Number.isFinite(month) === false ||
         month < 1 || month > 12) {
       throw failure('REPORT_MONTH_INVALID',
@@ -161,12 +168,15 @@
     function addCost(cost) {
       validateCost(cost);
       const costs = readCosts(key);
+      // Calculate the next ID: start at 1 if empty, otherwise increment the last.
       const nextId = costs.length === 0 ? 1 : costs[costs.length - 1].id + 1;
 
+      // Store the cost with id and timestamp; return only the four public fields.
       costs.push({
         id: nextId,
         sum: cost.sum,
         currency: cost.currency,
+        // Store the original category and description as provided by the caller.
         category: cost.category,
         description: cost.description,
         date: todayParts()
@@ -189,11 +199,13 @@
       while the total is reported in USD.
     */
     function getReport(currency, year, month) {
+      // Use today's date as defaults when year or month arguments are omitted.
       const today = todayParts();
       const useYear = year === undefined ? today.year : year;
       const useMonth = month === undefined ? today.month : month;
       validateReportArguments(currency, useYear, useMonth);
 
+      // Prepare arrays for the report: read stored costs and initialize totals.
       const costs = readCosts(key);
       const rows = [];
       let total = 0;
@@ -201,9 +213,11 @@
       // Filter costs by year and month, building report rows with only
       // the five required keys: sum, currency, category, description, date.
       costs.forEach((item) => {
+        // Skip items from other months to filter the report to a single month.
         if (item.date.year !== useYear || item.date.month !== useMonth) {
           return;
         }
+        // Include the row in results; store only the five required fields.
         rows.push({
           sum: item.sum,
           currency: item.currency,
@@ -211,6 +225,7 @@
           description: item.description,
           date: { day: item.date.day }
         });
+        // Convert and accumulate: each cost is converted to the target currency.
         total = total + convert(item.sum, item.currency, currency);
       });
 
