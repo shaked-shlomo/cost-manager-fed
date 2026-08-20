@@ -10,6 +10,8 @@
   'use strict';
 
   // Rates are units per one USD, as the project document specifies.
+  // This is private to the IIFE, not global state. It lives at module scope
+  // because getReport must be synchronous while rates arrive asynchronously.
   let exchangeRates = null;
 
   // Build an Error that carries a machine readable code alongside the
@@ -141,13 +143,31 @@
     }
   }
 
-  // Converts a sum between currencies. Task 4 adds the rate lookup.
+  /*
+    Converts a sum between two currencies. The rates object holds units
+    per one USD, so a value is first taken back to USD by dividing by the
+    source rate, then out to the target by multiplying. With GBP at 0.5,
+    120 GBP divided by 0.5 gives 240 USD.
+  */
   function convert(sum, fromCurrency, toCurrency) {
     if (fromCurrency === toCurrency) {
       return sum;
     }
-    throw failure('RATES_NOT_LOADED',
-      'exchange rates are not available yet');
+    if (exchangeRates === null) {
+      throw failure('RATES_NOT_LOADED', 'exchange rates are not available yet');
+    }
+
+    const fromRate = exchangeRates[fromCurrency];
+    const toRate = exchangeRates[toCurrency];
+    // Check that source and target currencies have valid rates.
+    if (typeof fromRate !== 'number' || fromRate <= 0) {
+      throw failure('RATE_MISSING', 'no exchange rate for currency: ' + fromCurrency);
+    }
+    if (typeof toRate !== 'number' || toRate <= 0) {
+      throw failure('RATE_MISSING', 'no exchange rate for currency: ' + toCurrency);
+    }
+
+    return sum / fromRate * toRate;
   }
 
   function openCostsDB(databaseName, databaseVersion) {
@@ -243,8 +263,12 @@
     };
   }
 
-  // Task 4 adds setExchangeRates. Declared here so the shape is stable.
+  // Accepts the rates map fetched by src/api/rates.js. Rejecting a bad
+  // argument here keeps a failed refresh from poisoning good rates.
   function setExchangeRates(rates) {
+    if (rates === null || typeof rates !== 'object') {
+      throw failure('RATES_BAD_SHAPE', 'exchange rates must be an object');
+    }
     exchangeRates = rates;
   }
 

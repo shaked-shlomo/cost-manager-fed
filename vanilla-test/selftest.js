@@ -116,6 +116,37 @@
     check('getReport rejects a non numeric year',
       codeOf(() => rb.getReport('USD', 'x', 1)) === 'REPORT_YEAR_INVALID');
 
+    // ---- conversion ----
+    // Set up test data: clear storage, add costs in different currencies.
+    root.localStorage.clear();
+    const cb = db.openCostsDB('costsdb', 1);
+    cb.addCost({ sum: 200, currency: 'USD', category: 'Food', description: 'Milk 3%' });
+    cb.addCost({ sum: 120, currency: 'GBP', category: 'Education', description: 'Zoom' });
+
+    const yearNow = new Date().getFullYear();
+    const monthNow = new Date().getMonth() + 1;
+
+    check('conversion without rates throws',
+      codeOf(() => cb.getReport('ILS', yearNow, monthNow)) === 'RATES_NOT_LOADED');
+
+    // The project document's worked example: 1 GBP equals 2 USD, so the
+    // rate is 0.5 GBP per USD, and 200 USD plus 120 GBP totals 440 USD.
+    db.setExchangeRates({ USD: 1, GBP: 0.5, EURO: 0.7, ILS: 3.4 });
+    const converted = cb.getReport('USD', yearNow, monthNow);
+    check('document worked example totals 440', converted.total.sum === 440);
+    check('rows are never converted', converted.costs[1].sum === 120);
+    check('rows keep the original currency', converted.costs[1].currency === 'GBP');
+
+    check('an unknown currency throws',
+      codeOf(() => cb.getReport('JPY', yearNow, monthNow)) === 'RATE_MISSING');
+
+    // Rounding: 100 ILS at 3.4 per USD is 29.411764... which must be 29.41.
+    root.localStorage.clear();
+    const rr = db.openCostsDB('costsdb', 1);
+    rr.addCost({ sum: 100, currency: 'ILS', category: 'Food', description: 'x' });
+    check('totals round to two decimals',
+      rr.getReport('USD', yearNow, monthNow).total.sum === 29.41);
+
     return { passed: passed, failed: failed, lines: lines };
   }
 
