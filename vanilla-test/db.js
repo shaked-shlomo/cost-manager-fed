@@ -180,6 +180,7 @@
     return sum / fromRate * toRate;
   }
 
+  // --- vanilla only: begin ---
   /*
     Fetches the default rates once, in the background. The grading test
     calls openCostsDB inside a try block that reports any thrown message,
@@ -187,14 +188,14 @@
     swallowed and simply leaves the rates unset, which makes a later
     conversion report RATES_NOT_LOADED instead of breaking this call.
   */
-  // --- vanilla only: begin ---
   async function requestDefaultRates() {
     if (ratesRequested === true || typeof root.fetch !== 'function') {
       return;
     }
+    // Claimed before the first await, so a second openCostsDB call in any
+    // later tick already sees the flag and cannot start a second fetch.
     ratesRequested = true;
 
-    // Fetch rates in the background; catch errors to avoid throwing.
     try {
       const response = await root.fetch(DEFAULT_RATES_URL);
       if (response.ok === true) {
