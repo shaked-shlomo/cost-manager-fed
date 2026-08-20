@@ -34,6 +34,8 @@ function AppLayout({ tab, onTabChange, children }) {
           {TAB_LABELS.map((label) => <Tab key={label} label={label} />)}
         </Tabs>
       </AppBar>
+      {/* maxWidth md keeps the measure readable on a desktop monitor,
+          which is the only target the project document asks for. */}
       <Container maxWidth="md" sx={{ py: 4 }}>
         {children}
       </Container>
