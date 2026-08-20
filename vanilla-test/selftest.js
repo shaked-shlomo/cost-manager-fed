@@ -1,0 +1,73 @@
+/*
+  Shared assertion suite for db.js. It is deliberately dependency free so
+  the same file runs in a browser via selftest.html and under Node via
+  tools/run-selftest.mjs. It takes the db object as an argument so it can
+  be pointed at either the vanilla build or the module build.
+*/
+(function (root) {
+  'use strict';
+
+  function runSelfTest(db) {
+    const lines = [];
+    let passed = 0;
+    let failed = 0;
+
+    // Record one assertion result.
+    function check(name, condition) {
+      if (condition) {
+        passed = passed + 1;
+        lines.push('PASS  ' + name);
+        return;
+      }
+      failed = failed + 1;
+      lines.push('FAIL  ' + name);
+    }
+
+    // Run a function and return the error code it threw, or null.
+    function codeOf(fn) {
+      try {
+        fn();
+      } catch (error) {
+        return error.code;
+      }
+      return null;
+    }
+
+    // Every run starts from empty storage so totals are predictable.
+    root.localStorage.clear();
+
+    const ob = db.openCostsDB('costsdb', 1);
+    check('openCostsDB returns an object', Boolean(ob));
+    check('costsDB exposes addCost', typeof ob.addCost === 'function');
+    check('costsDB exposes getReport', typeof ob.getReport === 'function');
+
+    check('openCostsDB rejects an empty name',
+      codeOf(() => db.openCostsDB('', 1)) === 'DB_NAME_INVALID');
+    check('openCostsDB rejects a non numeric version',
+      codeOf(() => db.openCostsDB('costsdb', 'one')) === 'DB_VERSION_INVALID');
+
+    const added = ob.addCost({
+      sum: 200,
+      currency: 'USD',
+      category: 'FOOD',
+      description: 'pizza'
+    });
+    check('addCost returns a truthy object', Boolean(added));
+    check('addCost returns exactly four keys', Object.keys(added).length === 4);
+    check('addCost echoes the sum', added.sum === 200);
+    check('addCost echoes the category verbatim', added.category === 'FOOD');
+
+    check('addCost rejects a non object',
+      codeOf(() => ob.addCost(null)) === 'COST_NOT_OBJECT');
+    check('addCost rejects a non numeric sum',
+      codeOf(() => ob.addCost({ sum: 'x', currency: 'USD', category: 'a', description: 'b' }))
+        === 'SUM_NOT_NUMBER');
+    check('addCost rejects an empty category',
+      codeOf(() => ob.addCost({ sum: 1, currency: 'USD', category: '', description: 'b' }))
+        === 'CATEGORY_NOT_STRING');
+
+    return { passed: passed, failed: failed, lines: lines };
+  }
+
+  root.runSelfTest = runSelfTest;
+}(typeof window === 'undefined' ? globalThis : window));
