@@ -159,7 +159,8 @@
 
     const fromRate = exchangeRates[fromCurrency];
     const toRate = exchangeRates[toCurrency];
-    // Check that source and target currencies have valid rates.
+    // A zero, negative or non numeric rate cannot be divided by or
+    // multiplied with meaningfully, so reject it rather than return NaN.
     if (typeof fromRate !== 'number' || fromRate <= 0) {
       throw failure('RATE_MISSING', 'no exchange rate for currency: ' + fromCurrency);
     }

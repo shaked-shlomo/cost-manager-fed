@@ -117,7 +117,8 @@
       codeOf(() => rb.getReport('USD', 'x', 1)) === 'REPORT_YEAR_INVALID');
 
     // ---- conversion ----
-    // Set up test data: clear storage, add costs in different currencies.
+    // Two currencies in one month is what makes the total conversion
+    // observable: a USD only month would pass even with broken arithmetic.
     root.localStorage.clear();
     const cb = db.openCostsDB('costsdb', 1);
     cb.addCost({ sum: 200, currency: 'USD', category: 'Food', description: 'Milk 3%' });
