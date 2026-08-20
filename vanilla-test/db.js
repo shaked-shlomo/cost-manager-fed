@@ -39,27 +39,34 @@
     return databaseName + '_v' + databaseVersion + '_costs';
   }
 
+  // Raised for both ways stored data can be unusable, so the two paths
+  // below cannot drift apart in the message the grading page prints.
+  function corrupted() {
+    return failure('STORAGE_CORRUPTED',
+      'stored cost data is corrupted and cannot be read');
+  }
+
   function readCosts(key) {
     const raw = storage().getItem(key);
+    // A missing key is an empty database, not corruption.
     if (raw === null) {
       return [];
     }
+
+    let parsed = null;
     try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-      // Valid JSON that is not an array is corrupted data.
-      throw failure('STORAGE_CORRUPTED',
-        'stored cost data is corrupted and cannot be read');
+      parsed = JSON.parse(raw);
     } catch (error) {
       // Refuse rather than silently discarding the user's saved data.
-      if (error.code === 'STORAGE_CORRUPTED') {
-        throw error;
-      }
-      throw failure('STORAGE_CORRUPTED',
-        'stored cost data is corrupted and cannot be read');
+      throw corrupted();
     }
+
+    // Valid JSON that is not an array is corrupted just the same, and
+    // returning an empty list here would let the next write erase it.
+    if (Array.isArray(parsed) === false) {
+      throw corrupted();
+    }
+    return parsed;
   }
 
   function writeCosts(key, costs) {
