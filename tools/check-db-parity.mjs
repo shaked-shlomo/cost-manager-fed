@@ -11,6 +11,13 @@ function normalise(source) {
   return source
     // Drop the blocks that legitimately exist in one version only.
     .replace(/\/\/ --- vanilla only: begin ---[\s\S]*?\/\/ --- vanilla only: end ---/g, '')
+    /*
+      Packaging blocks hold the prose that HAS to differ between the two
+      files: each one describes how it is loaded and what it exposes. They
+      carry no logic, so stripping them keeps the comparison honest while
+      letting each file describe itself truthfully in the submission PDF.
+    */
+    .replace(/\/\/ --- packaging: begin ---[\s\S]*?\/\/ --- packaging: end ---/g, '')
     .replace(/^\(function \(root\) \{$/m, '')
     .replace(/^\}\(typeof window === 'undefined' \? globalThis : window\)\);$/m, '')
     .replace(/^\s*root\.db = \{[\s\S]*?\};$/m, '')

@@ -1,16 +1,22 @@
+// --- packaging: begin ---
 /*
-db.js - a small library that wraps localStorage for the Cost Manager
-application. This is the vanilla version. Loading it with a plain
-script element adds the db property to the global object.
+  db.js - a small library that wraps localStorage for the Cost Manager
+  application.
 
-The module version in src/db/db.js is the same body with the closing
-lines replaced by an export statement.
+  This is the ES module version, imported by the React application. It
+  deliberately performs no network access at all: src/api/rates.js owns
+  fetching and pushes rates in through setExchangeRates, so this file
+  cannot race with a rates URL the user chose in the settings screen.
+  Its twin, vanilla-test/db.js, holds the same logic packaged for a plain
+  script element, and tools/check-db-parity.mjs fails the build if the
+  two ever drift apart.
 */
+// --- packaging: end ---
 'use strict';
 
 // Rates are units per one USD, as the project document specifies.
-// This is private to the IIFE, not global state. It lives at module scope
-// because getReport must be synchronous while rates arrive asynchronously.
+// This is private to this file, not global state. It has to live at
+// this scope because getReport is synchronous while rates arrive async.
 let exchangeRates = null;
 
 // Build an Error that carries a machine readable code alongside the
