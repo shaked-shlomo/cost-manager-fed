@@ -36,16 +36,27 @@
     // Every run starts from empty storage so totals are predictable.
     root.localStorage.clear();
 
+    // Basic object structure checks.
     const ob = db.openCostsDB('costsdb', 1);
     check('openCostsDB returns an object', Boolean(ob));
     check('costsDB exposes addCost', typeof ob.addCost === 'function');
     check('costsDB exposes getReport', typeof ob.getReport === 'function');
 
+    // DB opening argument validation.
     check('openCostsDB rejects an empty name',
       codeOf(() => db.openCostsDB('', 1)) === 'DB_NAME_INVALID');
     check('openCostsDB rejects a non numeric version',
       codeOf(() => db.openCostsDB('costsdb', 'one')) === 'DB_VERSION_INVALID');
 
+    // Non-array JSON in storage is corrupted data, not an empty database.
+    root.localStorage.setItem('costsdb_v1_costs', '{}');
+    check('readCosts throws on non-array JSON',
+      codeOf(() => db.openCostsDB('costsdb', 1).addCost(
+        { sum: 1, currency: 'USD', category: 'a', description: 'b' }
+      )) === 'STORAGE_CORRUPTED');
+    root.localStorage.clear();
+
+    // addCost returns the cost with exactly the four public fields.
     const added = ob.addCost({
       sum: 200,
       currency: 'USD',
@@ -57,6 +68,7 @@
     check('addCost echoes the sum', added.sum === 200);
     check('addCost echoes the category verbatim', added.category === 'FOOD');
 
+    // addCost validates the cost object structure and types.
     check('addCost rejects a non object',
       codeOf(() => ob.addCost(null)) === 'COST_NOT_OBJECT');
     check('addCost rejects a non numeric sum',

@@ -46,9 +46,17 @@
     }
     try {
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+      // Valid JSON that is not an array is corrupted data.
+      throw failure('STORAGE_CORRUPTED',
+        'stored cost data is corrupted and cannot be read');
     } catch (error) {
       // Refuse rather than silently discarding the user's saved data.
+      if (error.code === 'STORAGE_CORRUPTED') {
+        throw error;
+      }
       throw failure('STORAGE_CORRUPTED',
         'stored cost data is corrupted and cannot be read');
     }
@@ -75,29 +83,35 @@
   }
 
   function validateCost(cost) {
+    // Argument must be an object, not null or primitive.
     if (cost === null || typeof cost !== 'object') {
       throw failure('COST_NOT_OBJECT',
         'addCost expects an object with sum, currency, category and description');
     }
+    // sum must be a finite number, not NaN or Infinity.
     if (typeof cost.sum !== 'number' || Number.isNaN(cost.sum) === true ||
         Number.isFinite(cost.sum) === false) {
       throw failure('SUM_NOT_NUMBER', 'sum must be a finite number');
     }
+    // currency and category must be non-empty strings.
     if (typeof cost.currency !== 'string' || cost.currency.length === 0) {
       throw failure('CURRENCY_NOT_STRING', 'currency must be a non-empty string');
     }
     if (typeof cost.category !== 'string' || cost.category.length === 0) {
       throw failure('CATEGORY_NOT_STRING', 'category must be a non-empty string');
     }
+    // description can be any string, including empty.
     if (typeof cost.description !== 'string') {
       throw failure('DESCRIPTION_NOT_STRING', 'description must be a string');
     }
   }
 
   function openCostsDB(databaseName, databaseVersion) {
+    // databaseName must be a non-empty string to avoid key collisions.
     if (typeof databaseName !== 'string' || databaseName.length === 0) {
       throw failure('DB_NAME_INVALID', 'databaseName must be a non-empty string');
     }
+    // databaseVersion must be finite; Infinity allows key collisions across versions.
     if (typeof databaseVersion !== 'number' ||
         Number.isFinite(databaseVersion) === false) {
       throw failure('DB_VERSION_INVALID', 'databaseVersion must be a number');
