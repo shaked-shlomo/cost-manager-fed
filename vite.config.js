@@ -17,7 +17,9 @@ const XHTML_DOCTYPE = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"\
 function preserveXhtmlDoctype() {
   return {
     name: 'preserve-xhtml-doctype',
+    // Plugin hook runs before Vite's parse; swap XHTML for HTML5 so parse5 succeeds.
     transformIndexHtml: {
+      // 'pre' order ensures this hook fires before Vite's parser, not after.
       order: 'pre',
       handler(html) {
         return html.replace(XHTML_DOCTYPE, '<!DOCTYPE html>');
@@ -37,6 +39,7 @@ function stripCrossOrigin() {
   return {
     name: 'strip-crossorigin',
     enforce: 'post',
+    // Run after Vite's build to clean up injected attributes and restore the doctype.
     transformIndexHtml(html) {
       // remove the attribute whether or not it carries a value
       const withoutCrossOrigin = html.replace(/\scrossorigin(=["'][^"']*["'])?/g, '');
@@ -48,6 +51,7 @@ function stripCrossOrigin() {
           'XHTML doctype restore failed: dist/index.html would ship bare HTML5 doctype'
         );
       }
+      // This returned string is what Vite writes to dist, so the XHTML doctype ships in the file W3C validates.
       return restored;
     }
   };

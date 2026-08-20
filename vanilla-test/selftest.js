@@ -8,6 +8,7 @@
   'use strict';
 
   function runSelfTest(db) {
+    // Accumulate test results as structured records for reporting.
     const lines = [];
     let passed = 0;
     let failed = 0;
@@ -19,6 +20,7 @@
         lines.push('PASS  ' + name);
         return;
       }
+      // Failure path: increment counter and log the failed test for the report.
       failed = failed + 1;
       lines.push('FAIL  ' + name);
     }
@@ -30,6 +32,7 @@
       } catch (error) {
         return error.code;
       }
+      // Null return signals success: the function did not throw, so no error code exists.
       return null;
     }
 
@@ -63,6 +66,7 @@
       category: 'FOOD',
       description: 'pizza'
     });
+    // Verify the returned object shape and echoed values.
     check('addCost returns a truthy object', Boolean(added));
     check('addCost returns exactly four keys', Object.keys(added).length === 4);
     check('addCost echoes the sum', added.sum === 200);
@@ -74,6 +78,7 @@
     check('addCost rejects a non numeric sum',
       codeOf(() => ob.addCost({ sum: 'x', currency: 'USD', category: 'a', description: 'b' }))
         === 'SUM_NOT_NUMBER');
+    // Validation continues with string fields to ensure category exists and is non-empty.
     check('addCost rejects an empty category',
       codeOf(() => ob.addCost({ sum: 1, currency: 'USD', category: '', description: 'b' }))
         === 'CATEGORY_NOT_STRING');
