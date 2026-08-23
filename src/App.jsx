@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import Typography from '@mui/material/Typography';
 import AppLayout from './components/Layout/AppLayout.jsx';
 import ErrorBoundary from './components/Layout/ErrorBoundary.jsx';
 import AddCostForm from './components/Forms/AddCostForm.jsx';
 import ReportView from './components/Report/ReportView.jsx';
 import ChartsView from './components/Charts/ChartsView.jsx';
+import SettingsForm from './components/Forms/SettingsForm.jsx';
 
-// Views arrive in Tasks 10 to 13; tab 3 still renders a placeholder
-// until its own task fills it in.
+// All four screens from Tasks 10 to 13 are now wired to their tabs.
 function App() {
   const [tab, setTab] = useState(0);
 
@@ -26,7 +25,7 @@ function App() {
         ) : tab === 2 ? (
           <ChartsView />
         ) : (
-          <Typography>Screen {tab}</Typography>
+          <SettingsForm />
         )}
       </ErrorBoundary>
     </AppLayout>
