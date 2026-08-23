@@ -32,10 +32,34 @@ function AddCostForm() {
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
 
-  const costsDB = openCostsDB(DATABASE_NAME, DATABASE_VERSION);
-  // Suggestions come straight from storage. getCategories takes no
-  // currency, so it can never fail because rates have not loaded.
-  const suggestions = costsDB.getCategories();
+  /*
+    Opening the database and reading the categories both touch storage, so
+    both can throw when storage is unavailable or its contents are damaged.
+    Catching here rather than letting the error escape the render keeps the
+    specific advice in ErrorMessage reachable; an escaped error would hit
+    the boundary instead and the user would only get its generic wording.
+  */
+  let costsDB = null;
+  let suggestions = [];
+  let storageError = null;
+  try {
+    costsDB = openCostsDB(DATABASE_NAME, DATABASE_VERSION);
+    // getCategories takes no currency, so it cannot fail merely because
+    // the exchange rates have not arrived yet.
+    suggestions = costsDB.getCategories();
+  } catch (caught) {
+    storageError = caught;
+  }
+
+  // Without a database there is nothing to submit into, so show the reason
+  // instead of a form whose button could not work.
+  if (storageError !== null) {
+    return (
+      <Paper sx={{ p: 3 }}>
+        <ErrorMessage error={storageError} />
+      </Paper>
+    );
+  }
 
   // Validates in the user interface first, so the library errors act as a
   // last line of defence rather than the primary experience.

@@ -11,7 +11,10 @@ function App() {
 
   return (
     <AppLayout tab={tab} onTabChange={setTab}>
-      <ErrorBoundary>
+      {/* key={tab} remounts the boundary on every tab change. Without it a
+          crash on one screen latches its failed state on, and every other
+          tab would keep rendering the fallback instead of its own content. */}
+      <ErrorBoundary key={tab}>
         {tab === 1 ? <AddCostForm /> : <Typography>Screen {tab}</Typography>}
       </ErrorBoundary>
     </AppLayout>
