@@ -55,9 +55,6 @@ function getRatesState() {
   return {
     status: status,
     lastUpdatedAt: lastUpdatedAt,
-    // Read from settings rather than cached, so the panel shows the URL
-    // actually in force even if it changed since the last fetch.
-    url: getRatesUrl(),
     error: lastError
   };
 }
@@ -163,11 +160,6 @@ function setRatesUrl(url) {
 }
 
 // Public API for rate management and subscription
-export {
-  startRates,
-  refreshRates,
-  setRatesUrl,
-  getRatesState,
-  subscribe,
-  RATES_REFRESH_INTERVAL_MS
-};
+// Only what the application actually consumes. refreshRates and the poll
+// interval stay private: startRates is the single entry point that arms both.
+export { startRates, setRatesUrl, getRatesState, subscribe };

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 // Local imports: the database layer, shared state, and this screen's
@@ -37,30 +38,35 @@ function ChartsView() {
     error = caught;
   }
 
-  if (error !== null) {
-    return (
-      <Paper sx={{ p: 3 }}>
-        <PeriodSelector value={period} onChange={setPeriod} showMonth />
-        <ErrorMessage error={error} />
-      </Paper>
-    );
-  }
-
+  /*
+    One tree for both outcomes rather than an early return, so the period
+    selector is declared once. Duplicating it would let the two copies drift.
+    The loading banner matches the Report screen: the two views read the same
+    rates state and should say the same thing about it.
+  */
   return (
     <Paper sx={{ p: 3 }}>
       <PeriodSelector value={period} onChange={setPeriod} showMonth />
+      {ratesState.status === 'loading' ? (
+        <Alert severity="info" sx={{ mb: 2 }}>Loading exchange rates.</Alert>
+      ) : null}
+      {error !== null ? <ErrorMessage error={error} /> : null}
       {/* Item (3) of the project document: one pie chart, one slice per
           category, for the selected month and year. */}
       <Typography variant="overline" color="text.secondary">
         Costs by category
       </Typography>
-      <CategoryPieChart totals={categoryTotals} currency={period.currency} />
+      {error === null ? (
+        <CategoryPieChart totals={categoryTotals} currency={period.currency} />
+      ) : null}
       {/* Item (4): all twelve months of the selected year, including
           the empty ones, so the shape of spending across the year shows. */}
       <Typography variant="overline" color="text.secondary" sx={{ mt: 4, display: 'block' }}>
         Costs by month
       </Typography>
-      <MonthlyBarChart totals={monthlyTotals} currency={period.currency} />
+      {error === null ? (
+        <MonthlyBarChart totals={monthlyTotals} currency={period.currency} />
+      ) : null}
     </Paper>
   );
 }

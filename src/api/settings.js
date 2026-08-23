@@ -35,7 +35,17 @@ function getRatesUrl() {
 function setRatesUrl(url) {
   const settings = readSettings();
   settings.ratesUrl = typeof url === 'string' ? url.trim() : '';
-  window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  try {
+    window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch (error) {
+    /*
+      Storage can refuse in private browsing. Swallowing that is deliberate:
+      the caller in rates.js refreshes from the new URL regardless, so the
+      choice still takes effect for this session and only fails to survive a
+      reload. Throwing here would escape a React event handler, where an
+      error boundary cannot catch it, and the click would look like a no-op.
+    */
+  }
 }
 
 export { getRatesUrl, setRatesUrl, DEFAULT_RATES_URL };
