@@ -41,10 +41,19 @@ function SettingsForm() {
     setRatesUrl(url);
   }
 
+  /*
+    Restoring clears the stored override rather than writing today's default
+    into it. settings.js treats an empty string as "no preference" and falls
+    back to the constant on every read, so a user who restores keeps tracking
+    the default even if it is later changed in code. Writing the constant
+    would instead pin them to the value it happened to have at this moment.
+    The field still displays the constant, since an empty box would tell the
+    user nothing about where the rates are coming from.
+  */
   function handleRestore() {
     setUrl(DEFAULT_RATES_URL);
     setFieldError('');
-    setRatesUrl(DEFAULT_RATES_URL);
+    setRatesUrl('');
   }
 
   return (
