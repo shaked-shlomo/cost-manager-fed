@@ -16,7 +16,6 @@ const MESSAGES = {
     'This app needs browser storage. Turn off private browsing or enable site data, then reload.',
   STORAGE_CORRUPTED:
     'Saved cost data could not be read. It may have been changed outside the app.',
-  RATES_BAD_URL: 'That is not a valid URL. Include http:// or https://.',
   RATES_BAD_JSON: 'That URL did not return valid JSON.',
   RATES_BAD_SHAPE: 'The rates response is missing one of USD, ILS, GBP or EURO.',
   RATES_HTTP_ERROR: 'The rates server rejected the request.',

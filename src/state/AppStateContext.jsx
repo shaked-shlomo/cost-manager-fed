@@ -12,14 +12,28 @@ function AppStateProvider({ children }) {
   const [ratesState, setRatesState] = useState(getRatesState);
   const [dataVersion, setDataVersion] = useState(0);
 
-  // Mirror the rates module into React state so components re-render.
+  /*
+    The initial snapshot is taken during render, but this effect only runs
+    after commit, so a notification landing in between would otherwise be
+    missed until the next poll. Re-reading once before subscribing closes
+    that gap.
+  */
   useEffect(() => {
+    setRatesState(getRatesState());
     const unsubscribe = subscribe(() => setRatesState(getRatesState()));
     return unsubscribe;
   }, []);
 
-  // dataVersion and ratesState both belong in the memo deps: either one
-  // changing means every screen reading this context should re-render.
+  /*
+    How the screens stay current: this memo deliberately produces a NEW
+    object identity whenever either dependency changes, and React re-renders
+    every consumer of a context whose value identity changed. So all four
+    screens recompute on a rates refresh or on a cost being added, whichever
+    fields they happen to destructure. dataVersion is a change token rather
+    than a value to read - nothing reads it, and nothing should need to.
+    Do not memoise this into a stable identity or add a context selector
+    without replacing the mechanism; the re-render is the feature.
+  */
   const value = useMemo(() => {
     return {
       ratesState: ratesState,

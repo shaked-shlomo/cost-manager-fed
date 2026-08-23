@@ -21,14 +21,14 @@ function currentPeriod() {
 }
 
 function ReportView() {
-  // Reading these from context is what makes the screen recompute: adding
-  // a cost bumps dataVersion and a rates refresh replaces ratesState, and
-  // either one re-renders this consumer.
+  // Consuming the context at all is what makes this screen recompute: the
+  // provider hands out a fresh value identity whenever a cost is added or
+  // the rates change, which re-renders every consumer. See AppStateContext.
   const { ratesState } = useAppState();
   const [period, setPeriod] = useState(currentPeriod);
 
   // getReport runs on every render rather than in an effect, so the table
-  // is always in sync with the period picked and with dataVersion above.
+  // is always in step with the period picked and with the latest stored data.
   let report = null;
   let error = null;
   try {

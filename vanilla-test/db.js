@@ -377,8 +377,8 @@
     };
   }
 
-  // Accepts the rates map fetched by src/api/rates.js. Rejecting a bad
-  // argument here keeps a failed refresh from poisoning good rates.
+  // Accepts a rates map that the caller fetched over the network. Rejecting
+  // a bad argument here keeps a failed refresh from poisoning good rates.
   function setExchangeRates(rates) {
     if (rates === null || typeof rates !== 'object') {
       throw failure('RATES_BAD_SHAPE', 'exchange rates must be an object');
