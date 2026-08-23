@@ -4,9 +4,10 @@ import AppLayout from './components/Layout/AppLayout.jsx';
 import ErrorBoundary from './components/Layout/ErrorBoundary.jsx';
 import AddCostForm from './components/Forms/AddCostForm.jsx';
 import ReportView from './components/Report/ReportView.jsx';
+import ChartsView from './components/Charts/ChartsView.jsx';
 
-// Views arrive in Tasks 10 to 13; tabs 2 and 3 still render a
-// placeholder until their own tasks fill them in.
+// Views arrive in Tasks 10 to 13; tab 3 still renders a placeholder
+// until its own task fills it in.
 function App() {
   const [tab, setTab] = useState(0);
 
@@ -22,6 +23,8 @@ function App() {
           <ReportView />
         ) : tab === 1 ? (
           <AddCostForm />
+        ) : tab === 2 ? (
+          <ChartsView />
         ) : (
           <Typography>Screen {tab}</Typography>
         )}
