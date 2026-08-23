@@ -139,6 +139,9 @@ function AddCostForm() {
           error={fieldErrors.description !== undefined}
           helperText={fieldErrors.description}
         />
+        {/* Wrapping the button keeps it at its natural width instead of
+            stretching across the grid column the fields occupy. Submitting
+            through the form, not an onClick, is what makes Enter work. */}
         <Box>
           <Button type="submit" variant="contained">Add cost</Button>
         </Box>
