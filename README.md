@@ -1,4 +1,4 @@
-# Cost Manager — Front End
+# Cost Manager - Front End
 
 Final project for **Front End Development** (HIT, course 65364).
 
@@ -15,7 +15,7 @@ bar chart across the twelve months of a year.
 
 ## Stack
 
-React · MUI · `@mui/x-charts` · Vite · plain JavaScript
+React | MUI | `@mui/x-charts` | Vite | plain JavaScript
 
 Data is stored in the browser's `localStorage` through a dedicated `db.js` library, which exists in
 two versions: an ES module used by the application, and a standalone vanilla script that adds `db`
@@ -32,7 +32,7 @@ A settings screen lets the user point the application at any other rates URL.
 | Exchange rates JSON | https://cost-manager-fed-a4vc.onrender.com/rates.json |
 
 Both are served by a single Render **Static Site**. A static site is delivered from a CDN and does
-not spin down, so there is no cold start and nothing needs waking before use — unlike a Render
+not spin down, so there is no cold start and nothing needs waking before use - unlike a Render
 *Web Service*, which sleeps after inactivity on the free plan.
 
 ### Before testing
