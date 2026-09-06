@@ -239,6 +239,31 @@ npm test
 This runs the `db.js` self-test (`npm run test:db`) and verifies that the module and vanilla
 versions of the library stay in sync (`npm run test:parity`).
 
+## How to Clear the Site Data
+
+All costs live in the browser's `localStorage`, so resetting the application means clearing
+that storage. With DevTools already open (F12 or Ctrl+Shift+I), the fastest way is:
+
+### Option 1 - One line in the Console (easiest)
+
+1. Click in the **Console** tab (where the output is shown).
+2. Type:
+
+   ```
+   localStorage.clear()
+   ```
+
+3. Press **Enter** and reload the page.
+
+### Option 2 - The Application tab
+
+1. Open the **Application** tab in DevTools.
+2. Under **Storage**, click **Clear site data**.
+3. Reload the page.
+
+Both options remove every stored cost and any custom exchange-rates URL saved from the
+Settings screen. The application falls back to its defaults on the next load.
+
 ## Deployment
 
 The production application is deployed on Render as a Static Site.
