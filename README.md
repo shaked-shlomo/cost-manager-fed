@@ -35,7 +35,7 @@ React Application
        +-- Components
        |     +-- Layout
        |     +-- Forms
-       |     +-- Reports
+       |     +-- Report
        |     +-- Charts
        |
        +-- Shared State
@@ -175,8 +175,11 @@ object similar to:
 
 ```
 index.html              XHTML 1.0 Strict application shell
+public/rates.json       Default exchange-rates file, deployed next to the app
 
 src/
++-- main.jsx            Entry point that mounts the React application
++-- App.jsx             Root component
 +-- db/                 Database / localStorage library
 +-- api/                Exchange-rate fetching and settings
 +-- state/              Shared application state
@@ -185,10 +188,13 @@ src/
 |   +-- Forms
 |   +-- Report
 |   +-- Charts
+|   +-- common          Shared building blocks such as the error message
 +-- theme/              Material UI theme
 
 vanilla-test/           Standalone db.js and automated test page
 tools/                  Test runners and the submission PDF builder
+docs/                   Design spec, implementation plan and submission checklist
+requirements/           Course brief, rubric and reference material
 ```
 
 ## Installation and Setup
