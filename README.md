@@ -1,69 +1,298 @@
-# Cost Manager - Front End
+# Cost Manager - Frontend
 
-Final project for **Front End Development** (HIT, course 65364).
+## Project Overview
 
-A client-side cost manager: add cost items in USD, ILS, GBP or EURO, get a detailed report for any
-month and year in a currency of your choice, and view the same data as a pie chart by category or a
-bar chart across the twelve months of a year.
+Cost Manager is a client-side web application developed as the final project for the
+**Front End Development** course (HIT, course 65364).
+
+The application allows users to:
+
+- Add and manage cost items in USD, ILS, GBP, and EURO
+- View detailed cost reports for a specific month and year
+- Generate reports in a currency selected by the user
+- Visualize expenses using a pie chart by category
+- Visualize yearly expenses using a bar chart across twelve months
+- Configure a custom exchange-rates source through the application settings
+
+The application is built with React and follows a component-based architecture with shared
+state management and a dedicated client-side database library.
 
 ## Team
 
 | Role | Name |
 |---|---|
-| Development team manager | Shaked Shlomo |
-| Team member | Muhammad Egbaria |
+| Development Team Manager | Shaked Shlomo |
+| Team Member | Muhammad Egbaria |
 
-## Stack
+## Architecture
 
-React | MUI | `@mui/x-charts` | Vite | plain JavaScript
+The application follows a client-side React architecture with clear separation between data
+persistence, API communication, application state, UI components, and visualization.
 
-Data is stored in the browser's `localStorage` through a dedicated `db.js` library, which exists in
-two versions: an ES module used by the application, and a standalone vanilla script that adds `db`
-to the global object for automated testing.
+```
+React Application
+       |
+       +-- Components
+       |     +-- Layout
+       |     +-- Forms
+       |     +-- Report
+       |     +-- Charts
+       |
+       +-- Shared State
+       |
+       +-- Database Layer
+       |     +-- localStorage
+       |
+       +-- Exchange Rate API
+              |
+              +-- rates.json
+```
 
-Exchange rates are fetched with the Fetch API from a static JSON file deployed alongside the app.
-A settings screen lets the user point the application at any other rates URL.
+### Main Components
+
+- **Database Layer:** Provides a dedicated `db.js` library for storing and retrieving cost data
+  from the browser's `localStorage`.
+- **API Layer:** Handles exchange-rate retrieval using the Fetch API.
+- **State Layer:** Maintains shared application state across React components.
+- **UI Layer:** Contains reusable components for layouts, forms, reports, and charts.
+- **Settings:** Allows users to configure the exchange-rates URL used by the application.
+
+## Features
+
+### Cost Management
+
+Users can add cost items using the supported currencies:
+
+- USD
+- ILS
+- GBP
+- EURO
+
+Cost information is persisted locally in the browser using `localStorage`.
+
+### Monthly Reports
+
+The application generates a detailed report based on:
+
+- User-selected year
+- User-selected month
+- User-selected currency
+
+The report displays the relevant cost information while supporting currency conversion when
+exchange-rate data is available.
+
+### Data Visualization
+
+The application provides two types of charts:
+
+- **Pie Chart:** Displays costs grouped by category.
+- **Bar Chart:** Displays cost totals across the twelve months of a selected year.
+
+### Exchange Rates
+
+Exchange rates are retrieved using the browser's Fetch API from a static JSON file deployed
+alongside the application.
+
+The default rates source contains values in the following format:
+
+```json
+{
+  "USD": 1,
+  "GBP": 0.6,
+  "EURO": 0.7,
+  "ILS": 3.4
+}
+```
+
+The application also includes a Settings screen that allows the user to configure a different
+exchange-rates URL.
+
+The configured endpoint must allow cross-origin requests using:
+
+```
+Access-Control-Allow-Origin: *
+```
+
+### Data Persistence
+
+Cost data is stored locally in the browser using the Web Storage API (`localStorage`).
+
+The database functionality is implemented through a dedicated `db.js` library with two versions:
+
+- **ES Module:** Used directly by the React application.
+- **Standalone Vanilla JavaScript:** Exposes `db` through the global object and is used for
+  automated testing.
+
+This approach keeps the persistence logic separated from the application's UI and business logic.
+
+## Tech Stack
+
+- React
+- Material UI (MUI)
+- MUI X Charts (`@mui/x-charts`)
+- Vite
+- JavaScript
+- Fetch API
+- Browser `localStorage`
 
 ## Deployment
 
-| | URL |
+The application and exchange-rate data are deployed as a single Render **Static Site**.
+
+| Resource | URL |
 |---|---|
 | Application | https://cost-manager-fed-a4vc.onrender.com |
-| Exchange rates JSON | https://cost-manager-fed-a4vc.onrender.com/rates.json |
+| Exchange Rates | https://cost-manager-fed-a4vc.onrender.com/rates.json |
 
-Both are served by a single Render **Static Site**. A static site is delivered from a CDN and does
-not spin down, so there is no cold start and nothing needs waking before use - unlike a Render
-*Web Service*, which sleeps after inactivity on the free plan.
+A Render Static Site is served through a CDN and does not require a running server process.
+As a result, the application does not experience the cold-start behavior associated with a
+Render *Web Service* on the free plan.
 
-### Before testing
+### Exchange Rate Dependency
 
-Open the rates JSON URL above and confirm it returns something of the form
+Exchange-rate data is the application's main external dependency.
+
+If the rates endpoint is unavailable:
+
+- The application can still load.
+- Existing costs can still be stored.
+- Reports can still be generated using the original cost currencies.
+- Currency conversion between different currencies will not be available.
+
+Before testing the application, verify that the exchange-rate endpoint returns a valid JSON
+object similar to:
 
 ```json
-{ "USD": 1, "GBP": 0.6, "EURO": 0.7, "ILS": 3.4 }
+{
+  "USD": 1,
+  "GBP": 0.6,
+  "EURO": 0.7,
+  "ILS": 3.4
+}
 ```
 
-This is the one dependency that can fail quietly: with the rates unreachable the application still
-loads, still saves costs, and still produces a report in the currency the costs were entered in.
-Only conversion between currencies breaks. The Settings screen can point the application at any
-other rates URL that replies with `Access-Control-Allow-Origin: *`.
-
-## Layout
+## Project Structure
 
 ```
-index.html        XHTML 1.0 Strict shell
-src/db/           the db.js library (module version)
-src/api/          exchange-rate fetching and settings
-src/state/        shared application state
-src/components/   Layout, Forms, Report, Charts
-src/theme/        MUI theme
-vanilla-test/     standalone db.js and its test page
+index.html              XHTML 1.0 Strict application shell
+public/rates.json       Default exchange-rates file, deployed next to the app
+
+src/
++-- main.jsx            Entry point that mounts the React application
++-- App.jsx             Root component
++-- db/                 Database / localStorage library
++-- api/                Exchange-rate fetching and settings
++-- state/              Shared application state
++-- components/         Application UI components
+|   +-- Layout
+|   +-- Forms
+|   +-- Report
+|   +-- Charts
+|   +-- common          Shared building blocks such as the error message
++-- theme/              Material UI theme
+
+vanilla-test/           Standalone db.js and automated test page
+tools/                  Test runners and the submission PDF builder
+docs/                   Design spec, implementation plan and submission checklist
+requirements/           Course brief, rubric and reference material
 ```
 
-## Development
+## Installation and Setup
+
+### Prerequisites
+
+Make sure Node.js and npm are installed on your machine.
+
+### Install Dependencies
 
 ```
 npm install
+```
+
+### Start Development Server
+
+```
 npm run dev
+```
+
+The Vite development server will start the application locally.
+
+### Build for Production
+
+```
 npm run build
 ```
+
+The production-ready files will be generated by Vite.
+
+## Testing
+
+The project includes a standalone vanilla JavaScript version of the database library under:
+
+```
+vanilla-test/
+```
+
+This version exposes the database API through the global `db` object and is intended for
+automated testing of the database functionality independently from the React application.
+
+The same checks can be run from the command line:
+
+```
+npm test
+```
+
+This runs the `db.js` self-test (`npm run test:db`) and verifies that the module and vanilla
+versions of the library stay in sync (`npm run test:parity`).
+
+## How to Clear the Site Data
+
+All costs live in the browser's `localStorage`, so resetting the application means clearing
+that storage. With DevTools already open (F12 or Ctrl+Shift+I), the fastest way is:
+
+### Option 1 - One line in the Console (easiest)
+
+1. Click in the **Console** tab (where the output is shown).
+2. Type:
+
+   ```
+   localStorage.clear()
+   ```
+
+3. Press **Enter** and reload the page.
+
+### Option 2 - The Application tab
+
+1. Open the **Application** tab in DevTools.
+2. Under **Storage**, click **Clear site data**.
+3. Reload the page.
+
+Both options remove every stored cost and any custom exchange-rates URL saved from the
+Settings screen. The application falls back to its defaults on the next load.
+
+## Deployment
+
+The production application is deployed on Render as a Static Site.
+
+The deployed application is available at:
+
+https://cost-manager-fed-a4vc.onrender.com
+
+The exchange-rate configuration is available at:
+
+https://cost-manager-fed-a4vc.onrender.com/rates.json
+
+## Course Information
+
+- **Course:** Front End Development
+- **Course Number:** 65364
+- **Institution:** HIT - Holon Institute of Technology
+
+## Authors
+
+- Shaked Shlomo - Development Team Manager
+- Muhammad Egbaria - Team Member
+
+---
+
+Cost Manager - Front End Development Final Project
