@@ -31,7 +31,7 @@ function normalise(source) {
     .join('\n');
 }
 
-const vanillaSource = fs.readFileSync('vanilla-test/db.js', 'utf8');
+const vanillaSource = fs.readFileSync('vanilla/db.js', 'utf8');
 const moduleSource = fs.readFileSync('src/db/db.js', 'utf8');
 
 /*
@@ -83,7 +83,7 @@ function checkSentinels(label, source, allowVanillaOnly) {
   return problems;
 }
 
-const sentinelProblems = checkSentinels('vanilla-test/db.js', vanillaSource, true)
+const sentinelProblems = checkSentinels('vanilla/db.js', vanillaSource, true)
   .concat(checkSentinels('src/db/db.js', moduleSource, false));
 
 if (sentinelProblems.length > 0) {

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { subscribe, getRatesState } from '../api/rates.js';
+import { subscribe, getRatesState } from '../services/rates.js';
 
 const AppStateContext = createContext(null);
 

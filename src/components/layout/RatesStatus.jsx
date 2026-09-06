@@ -1,5 +1,5 @@
 import Chip from '@mui/material/Chip';
-import { useAppState } from '../../state/AppStateContext.jsx';
+import { useAppState } from '../../state/AppStateProvider.jsx';
 
 // Renders a clock time for the moment rates last loaded successfully.
 function formatTime(date) {

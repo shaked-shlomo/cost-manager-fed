@@ -1,15 +1,12 @@
 'use strict';
 
 import { setExchangeRates } from '../db/db.js';
-import { getRatesUrl, setRatesUrl as persistRatesUrl } from './settings.js';
+import { SUPPORTED_CURRENCIES } from '../db/constants.js';
+import { getRatesUrl, saveRatesUrl } from './settings.js';
 
 // Exchange rates move slowly, so a five minute poll is frequent enough to
 // stay current without making pointless requests.
 const RATES_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
-
-// The four symbols the project document names. A payload missing any of
-// them cannot serve the application and is rejected as a failed refresh.
-const REQUIRED_CURRENCIES = ['USD', 'ILS', 'GBP', 'EURO'];
 
 let status = 'loading';
 let lastUpdatedAt = null;
@@ -77,7 +74,7 @@ function validateRates(payload) {
   // A rate of zero or below would make convert divide by zero or return a
   // negative amount, so an incomplete payload is rejected outright rather
   // than half applied.
-  REQUIRED_CURRENCIES.forEach((currency) => {
+  SUPPORTED_CURRENCIES.forEach((currency) => {
     const value = payload[currency];
     if (typeof value !== 'number' || Number.isFinite(value) === false
         || value <= 0) {
@@ -152,7 +149,7 @@ function startRates() {
 
 // Changing the URL takes effect at once, as the course forum requires.
 function setRatesUrl(url) {
-  persistRatesUrl(url);
+  saveRatesUrl(url);
   status = 'loading';
   lastError = null;
   notify();

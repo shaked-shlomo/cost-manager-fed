@@ -1,7 +1,7 @@
 /*
   Shared assertion suite for db.js. It is deliberately dependency free so
-  the same file runs in a browser via selftest.html and under Node via
-  tools/run-selftest.mjs. It takes the db object as an argument so it can
+  the same file runs in a browser via self-test.html and under Node via
+  tools/run-self-test.mjs. It takes the db object as an argument so it can
   be pointed at either the vanilla build or the module build.
 */
 (function (root) {

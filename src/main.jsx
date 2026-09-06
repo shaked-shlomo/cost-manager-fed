@@ -5,8 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme/theme.js';
 import App from './App.jsx';
-import { AppStateProvider } from './state/AppStateContext.jsx';
-import { startRates } from './api/rates.js';
+import { AppStateProvider } from './state/AppStateProvider.jsx';
+import { startRates } from './services/rates.js';
 
 // Mount point is the single div in the XHTML shell.
 const container = document.getElementById('root');

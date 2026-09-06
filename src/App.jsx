@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import AppLayout from './components/Layout/AppLayout.jsx';
-import ErrorBoundary from './components/Layout/ErrorBoundary.jsx';
-import AddCostForm from './components/Forms/AddCostForm.jsx';
-import ReportView from './components/Report/ReportView.jsx';
-import ChartsView from './components/Charts/ChartsView.jsx';
-import SettingsForm from './components/Forms/SettingsForm.jsx';
+import AppLayout from './components/layout/AppLayout.jsx';
+import ErrorBoundary from './components/common/ErrorBoundary.jsx';
+import AddCostScreen from './screens/AddCostScreen.jsx';
+import ReportScreen from './screens/ReportScreen.jsx';
+import ChartsScreen from './screens/ChartsScreen.jsx';
+import SettingsScreen from './screens/SettingsScreen.jsx';
 
 // All four screens from Tasks 10 to 13 are now wired to their tabs.
 function App() {
@@ -19,13 +19,13 @@ function App() {
         {/* tab is 0-based tab position here, unrelated to the 1-based
             month values used elsewhere in the app. */}
         {tab === 0 ? (
-          <ReportView />
+          <ReportScreen />
         ) : tab === 1 ? (
-          <AddCostForm />
+          <AddCostScreen />
         ) : tab === 2 ? (
-          <ChartsView />
+          <ChartsScreen />
         ) : (
-          <SettingsForm />
+          <SettingsScreen />
         )}
       </ErrorBoundary>
     </AppLayout>

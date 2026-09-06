@@ -32,7 +32,7 @@ function getRatesUrl() {
 }
 
 // Persists a custom rates URL. An empty string restores the default.
-function setRatesUrl(url) {
+function saveRatesUrl(url) {
   const settings = readSettings();
   settings.ratesUrl = typeof url === 'string' ? url.trim() : '';
   try {
@@ -48,4 +48,4 @@ function setRatesUrl(url) {
   }
 }
 
-export { getRatesUrl, setRatesUrl, DEFAULT_RATES_URL };
+export { getRatesUrl, saveRatesUrl, DEFAULT_RATES_URL };

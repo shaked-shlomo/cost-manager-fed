@@ -7,10 +7,10 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 // Local imports: settings persistence, the rates service, app state and
 // the shared error renderer.
-import { getRatesUrl, DEFAULT_RATES_URL } from '../../api/settings.js';
-import { setRatesUrl } from '../../api/rates.js';
-import { useAppState } from '../../state/AppStateContext.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
+import { getRatesUrl, DEFAULT_RATES_URL } from '../services/settings.js';
+import { setRatesUrl } from '../services/rates.js';
+import { useAppState } from '../state/AppStateProvider.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
 
 // Rejects a value the browser cannot resolve, before it reaches the
 // rates service, so the user sees the problem next to the field.
@@ -25,7 +25,7 @@ function isValidUrl(candidate) {
   }
 }
 
-function SettingsForm() {
+function SettingsScreen() {
   const { ratesState } = useAppState();
   const [url, setUrl] = useState(getRatesUrl);
   const [fieldError, setFieldError] = useState('');
@@ -91,4 +91,4 @@ function SettingsForm() {
   );
 }
 
-export default SettingsForm;
+export default SettingsScreen;

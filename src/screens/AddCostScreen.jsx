@@ -9,18 +9,18 @@ import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 // Local imports: the library, its shared constants and app-wide state.
-import { openCostsDB } from '../../db/db.js';
+import { openCostsDB } from '../db/db.js';
 import {
   SUPPORTED_CURRENCIES,
   DATABASE_NAME,
   DATABASE_VERSION
-} from '../../db/constants.js';
-import { useAppState } from '../../state/AppStateContext.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
+} from '../db/constants.js';
+import { useAppState } from '../state/AppStateProvider.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
 
 // The one form for creating a cost item. No edit or delete here, and no
 // date field: the project document has the library stamp the date.
-function AddCostForm() {
+function AddCostScreen() {
   const { notifyDataChanged } = useAppState();
   // Local state: the four form fields, per-field validation messages, a
   // caught library error, and whether the just-saved snackbar shows.
@@ -183,4 +183,4 @@ function AddCostForm() {
   );
 }
 
-export default AddCostForm;
+export default AddCostScreen;

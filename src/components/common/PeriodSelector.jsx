@@ -8,6 +8,18 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+// Defaults to the current month and year in USD, matching the document's
+// statement that USD is the application's main currency. Shared by the
+// report and charts screens so both open on the same period.
+function currentPeriod() {
+  const today = new Date();
+  return {
+    year: today.getFullYear(),
+    month: today.getMonth() + 1,
+    currency: 'USD'
+  };
+}
+
 // Offers the current year and the four before it, which covers any data
 // a user of this application could plausibly have entered.
 function yearOptions() {
@@ -78,4 +90,5 @@ function PeriodSelector({ value, onChange, showMonth }) {
   );
 }
 
+export { currentPeriod };
 export default PeriodSelector;

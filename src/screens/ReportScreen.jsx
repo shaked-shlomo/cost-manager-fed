@@ -2,28 +2,17 @@ import { useState } from 'react';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 // Local imports: the library, its shared constants and app-wide state.
-import { openCostsDB } from '../../db/db.js';
-import { DATABASE_NAME, DATABASE_VERSION } from '../../db/constants.js';
-import { useAppState } from '../../state/AppStateContext.jsx';
-import PeriodSelector from '../Forms/PeriodSelector.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
-import ReportTable from './ReportTable.jsx';
+import { openCostsDB } from '../db/db.js';
+import { DATABASE_NAME, DATABASE_VERSION } from '../db/constants.js';
+import { useAppState } from '../state/AppStateProvider.jsx';
+import PeriodSelector, { currentPeriod } from '../components/common/PeriodSelector.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
+import ReportTable from '../components/report/ReportTable.jsx';
 
-// Defaults to the current month and year in USD, matching the document's
-// statement that USD is the application's main currency.
-function currentPeriod() {
-  const today = new Date();
-  return {
-    year: today.getFullYear(),
-    month: today.getMonth() + 1,
-    currency: 'USD'
-  };
-}
-
-function ReportView() {
+function ReportScreen() {
   // Consuming the context at all is what makes this screen recompute: the
   // provider hands out a fresh value identity whenever a cost is added or
-  // the rates change, which re-renders every consumer. See AppStateContext.
+  // the rates change, which re-renders every consumer. See AppStateProvider.
   const { ratesState } = useAppState();
   const [period, setPeriod] = useState(currentPeriod);
 
@@ -51,4 +40,4 @@ function ReportView() {
   );
 }
 
-export default ReportView;
+export default ReportScreen;

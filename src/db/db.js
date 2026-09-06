@@ -4,10 +4,10 @@
   application.
 
   This is the ES module version, imported by the React application. It
-  deliberately performs no network access at all: src/api/rates.js owns
+  deliberately performs no network access at all: src/services/rates.js owns
   fetching and pushes rates in through setExchangeRates, so this file
   cannot race with a rates URL the user chose in the settings screen.
-  Its twin, vanilla-test/db.js, holds the same logic packaged for a plain
+  Its twin, vanilla/db.js, holds the same logic packaged for a plain
   script element, and tools/check-db-parity.mjs fails npm test if the
   two ever drift apart.
 */

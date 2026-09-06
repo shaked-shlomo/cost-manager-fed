@@ -4,23 +4,18 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 // Local imports: the database layer, shared state, and this screen's
 // building blocks (the shared period selector, error display, and charts).
-import { openCostsDB } from '../../db/db.js';
-import { DATABASE_NAME, DATABASE_VERSION } from '../../db/constants.js';
-import { useAppState } from '../../state/AppStateContext.jsx';
-import PeriodSelector from '../Forms/PeriodSelector.jsx';
-import ErrorMessage from '../common/ErrorMessage.jsx';
-import CategoryPieChart from './CategoryPieChart.jsx';
-import MonthlyBarChart from './MonthlyBarChart.jsx';
-
-function currentPeriod() {
-  const today = new Date();
-  return { year: today.getFullYear(), month: today.getMonth() + 1, currency: 'USD' };
-}
+import { openCostsDB } from '../db/db.js';
+import { DATABASE_NAME, DATABASE_VERSION } from '../db/constants.js';
+import { useAppState } from '../state/AppStateProvider.jsx';
+import PeriodSelector, { currentPeriod } from '../components/common/PeriodSelector.jsx';
+import ErrorMessage from '../components/common/ErrorMessage.jsx';
+import CategoryPieChart from '../components/charts/CategoryPieChart.jsx';
+import MonthlyBarChart from '../components/charts/MonthlyBarChart.jsx';
 
 // Holds both required charts. They share one period and currency because
 // the project document groups them under a single requirement.
-function ChartsView() {
-  // As in ReportView, consuming context is what triggers recomputation
+function ChartsScreen() {
+  // As in ReportScreen, consuming context is what triggers recomputation
   // when a cost is added or the exchange rates change.
   const { ratesState } = useAppState();
   const [period, setPeriod] = useState(currentPeriod);
@@ -71,4 +66,4 @@ function ChartsView() {
   );
 }
 
-export default ChartsView;
+export default ChartsScreen;
