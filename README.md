@@ -64,9 +64,10 @@ src/
 vanilla/                Standalone db.js (the submitted version) and its test pages
 ```
 
-The repository also carries `tools/`, holding development scripts rather than
-application code, so it is left out of the structure above, the submission archive
-and the PDF. `docs/` and `requirements/` exist only on the developers' machines.
+The repository also carries `tools/`, which holds development scripts rather than
+application code and so sits outside the structure above. Its two test runners,
+the command-line suite and the parity checker, are listed in the submission PDF.
+`docs/` and `requirements/` exist only on the developers' machines.
 
 ## Getting Started
 
