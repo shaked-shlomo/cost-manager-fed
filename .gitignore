@@ -5,6 +5,10 @@ requirements/
 # Working notes and design docs. These carry team ID and mobile numbers.
 docs/
 
+# The submission PDF builder carries the team ID and mobile numbers, for the
+# same reason docs/ is excluded above. The test scripts beside it stay tracked.
+tools/make-pdf.py
+
 # Brainstorming companion scratch files
 .superpowers/
 
