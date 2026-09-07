@@ -2,7 +2,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 
-// Draws one slice per category, all expressed in the selected currency.
+// One slice per category, in the selected currency.
 function CategoryPieChart({ totals, currency }) {
   const theme = useTheme();
 

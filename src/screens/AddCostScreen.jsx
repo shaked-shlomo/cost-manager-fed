@@ -1,5 +1,5 @@
 import { useState } from 'react';
-// MUI form building blocks used across this screen.
+// MUI form building blocks.
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-// Local imports: the library, its shared constants and app-wide state.
+// The library, its constants and app-wide state.
 import { openCostsDB } from '../db/db.js';
 import {
   SUPPORTED_CURRENCIES,
@@ -18,12 +18,10 @@ import {
 import { useAppState } from '../state/AppStateProvider.jsx';
 import ErrorMessage from '../components/common/ErrorMessage.jsx';
 
-// The one form for creating a cost item. No edit or delete here, and no
-// date field: the project document has the library stamp the date.
+// No date field: the document has the library stamp the date.
 function AddCostScreen() {
   const { notifyDataChanged } = useAppState();
-  // Local state: the four form fields, per-field validation messages, a
-  // caught library error, and whether the just-saved snackbar shows.
+  // The four fields, their messages, a caught error, the snackbar.
   const [sum, setSum] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [category, setCategory] = useState('');
@@ -33,26 +31,21 @@ function AddCostScreen() {
   const [saved, setSaved] = useState(false);
 
   /*
-    Opening the database and reading the categories both touch storage, so
-    both can throw when storage is unavailable or its contents are damaged.
-    Catching here rather than letting the error escape the render keeps the
-    specific advice in ErrorMessage reachable; an escaped error would hit
-    the boundary instead and the user would only get its generic wording.
+  Both touch storage and can throw. Caught here so ErrorMessage can give
+  specific advice; escaping would reach the boundary's generic wording.
   */
   let costsDB = null;
   let suggestions = [];
   let storageError = null;
   try {
     costsDB = openCostsDB(DATABASE_NAME, DATABASE_VERSION);
-    // getCategories takes no currency, so it cannot fail merely because
-    // the exchange rates have not arrived yet.
+    // Currency free, so the rates cannot block it.
     suggestions = costsDB.getCategories();
   } catch (caught) {
     storageError = caught;
   }
 
-  // Without a database there is nothing to submit into, so show the reason
-  // instead of a form whose button could not work.
+  // No database means no form worth showing.
   if (storageError !== null) {
     return (
       <Paper sx={{ p: 3 }}>
@@ -61,8 +54,7 @@ function AddCostScreen() {
     );
   }
 
-  // Validates in the user interface first, so the library errors act as a
-  // last line of defence rather than the primary experience.
+  // UI first, so library errors stay a last line of defence.
   function validate() {
     const problems = {};
     const parsedSum = Number(sum);
@@ -70,31 +62,26 @@ function AddCostScreen() {
         parsedSum <= 0) {
       problems.sum = 'Enter an amount greater than 0.';
     }
-    // Every field is checked, not just the first invalid one, so a
-    // single submit surfaces all of the user's mistakes at once.
+    // Every field, so one submit surfaces every mistake.
     if (category.trim().length === 0) {
       problems.category = 'Choose a category or type a new one.';
     }
     if (description.trim().length === 0) {
       problems.description = 'Enter a short description.';
     }
-    // Setting fieldErrors even when problems is empty clears any
-    // messages left over from an earlier, failed attempt.
+    // Set even when empty, to clear messages from an earlier attempt.
     setFieldErrors(problems);
     return Object.keys(problems).length === 0;
   }
 
-  // Runs validation, then hands the trimmed fields to the library. A
-  // thrown library error is a second line of defence, shown through
-  // ErrorMessage rather than crashing the screen.
+  // Validates, then hands the trimmed fields to the library.
   function handleSubmit(event) {
     event.preventDefault();
     setError(null);
     if (validate() === false) {
       return;
     }
-    // Only the library call is wrapped: validate() already reported its
-    // own problems through fieldErrors, so this catch is just for addCost.
+    // Only addCost is wrapped; validate reported its own problems.
     try {
       costsDB.addCost({
         sum: Number(sum),
@@ -102,8 +89,7 @@ function AddCostScreen() {
         category: category.trim(),
         description: description.trim()
       });
-      // Clear the form and surface the snackbar; currency is left as is
-      // since the user is likely entering several costs in a row.
+      // Currency is kept: several costs in a row usually share one.
       setSum('');
       setCategory('');
       setDescription('');
@@ -128,8 +114,7 @@ function AddCostScreen() {
           helperText={fieldErrors.sum}
           inputProps={{ inputMode: 'decimal' }}
         />
-        {/* USD is first in SUPPORTED_CURRENCIES and is the default
-            selection above, matching the project document. */}
+        {/* USD is first and the default, as the document states. */}
         <TextField
           select
           label="Currency"
@@ -140,8 +125,7 @@ function AddCostScreen() {
             <MenuItem key={code} value={code}>{code}</MenuItem>
           ))}
         </TextField>
-        {/* freeSolo lets a first-time category be typed in, while
-            options still offers every category already in storage. */}
+        {/* freeSolo allows a new category; options offers the stored ones. */}
         <Autocomplete
           freeSolo
           options={suggestions}
@@ -163,16 +147,14 @@ function AddCostScreen() {
           error={fieldErrors.description !== undefined}
           helperText={fieldErrors.description}
         />
-        {/* Wrapping the button keeps it at its natural width instead of
-            stretching across the grid column the fields occupy. Submitting
-            through the form, not an onClick, is what makes Enter work. */}
+        {/* Wrapped to keep its natural width. Submitting through the form,
+        not an onClick, is what makes Enter work. */}
         <Box>
           <Button type="submit" variant="contained">Add cost</Button>
         </Box>
       </Box>
       <ErrorMessage error={error} />
-      {/* autoHideDuration plus onClose is the MUI-documented pairing;
-          without onClose the snackbar would never dismiss itself. */}
+      {/* Without onClose the snackbar would never dismiss itself. */}
       <Snackbar
         open={saved}
         autoHideDuration={3000}

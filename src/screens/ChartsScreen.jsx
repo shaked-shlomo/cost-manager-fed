@@ -2,8 +2,7 @@ import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-// Local imports: the database layer, shared state, and this screen's
-// building blocks (the shared period selector, error display, and charts).
+// The library, shared state, and this screen's building blocks.
 import { openCostsDB } from '../db/db.js';
 import { DATABASE_NAME, DATABASE_VERSION } from '../db/constants.js';
 import { useAppState } from '../state/AppStateProvider.jsx';
@@ -12,11 +11,9 @@ import ErrorMessage from '../components/common/ErrorMessage.jsx';
 import CategoryPieChart from '../components/charts/CategoryPieChart.jsx';
 import MonthlyBarChart from '../components/charts/MonthlyBarChart.jsx';
 
-// Holds both required charts. They share one period and currency because
-// the project document groups them under a single requirement.
+// Both charts share one period and currency, as the document groups them.
 function ChartsScreen() {
-  // As in ReportScreen, consuming context is what triggers recomputation
-  // when a cost is added or the exchange rates change.
+  // As in ReportScreen, consuming context triggers recomputation.
   const { ratesState } = useAppState();
   const [period, setPeriod] = useState(currentPeriod);
 
@@ -24,8 +21,7 @@ function ChartsScreen() {
   let monthlyTotals = null;
   let error = null;
   try {
-    // Both totals are computed together; a failure in either (rates
-    // not loaded yet, an unknown currency) aborts the render as one error.
+    // Computed together, so either failure surfaces as one error.
     const costsDB = openCostsDB(DATABASE_NAME, DATABASE_VERSION);
     categoryTotals = costsDB.getCategoryTotals(period.currency, period.year, period.month);
     monthlyTotals = costsDB.getMonthlyTotals(period.currency, period.year);
@@ -34,10 +30,8 @@ function ChartsScreen() {
   }
 
   /*
-    One tree for both outcomes rather than an early return, so the period
-    selector is declared once. Duplicating it would let the two copies drift.
-    The loading banner matches the Report screen: the two views read the same
-    rates state and should say the same thing about it.
+  One tree rather than an early return, so the period selector is declared
+  once and the two copies cannot drift.
   */
   return (
     <Paper sx={{ p: 3 }}>
@@ -46,16 +40,14 @@ function ChartsScreen() {
         <Alert severity="info" sx={{ mb: 2 }}>Loading exchange rates.</Alert>
       ) : null}
       {error !== null ? <ErrorMessage error={error} /> : null}
-      {/* Item (3) of the project document: one pie chart, one slice per
-          category, for the selected month and year. */}
+      {/* Item (3): one slice per category, for the selected month. */}
       <Typography variant="overline" color="text.secondary">
         Costs by category
       </Typography>
       {error === null ? (
         <CategoryPieChart totals={categoryTotals} currency={period.currency} />
       ) : null}
-      {/* Item (4): all twelve months of the selected year, including
-          the empty ones, so the shape of spending across the year shows. */}
+      {/* Item (4): all twelve months, empty ones included. */}
       <Typography variant="overline" color="text.secondary" sx={{ mt: 4, display: 'block' }}>
         Costs by month
       </Typography>

@@ -1,23 +1,20 @@
 import { useState } from 'react';
-// MUI building blocks used for the settings form layout.
+// MUI building blocks for the form.
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-// Local imports: settings persistence, the rates service, app state and
-// the shared error renderer.
+// Settings persistence, the rates service, state and errors.
 import { getRatesUrl, DEFAULT_RATES_URL } from '../services/settings.js';
 import { setRatesUrl } from '../services/rates.js';
 import { useAppState } from '../state/AppStateProvider.jsx';
 import ErrorMessage from '../components/common/ErrorMessage.jsx';
 
-// Rejects a value the browser cannot resolve, before it reaches the
-// rates service, so the user sees the problem next to the field.
+// Rejected here so the problem shows next to the field, not in the network.
 function isValidUrl(candidate) {
   try {
-    // The URL constructor throws for anything it cannot parse, which is
-    // the simplest way to catch typos before they reach the network.
+    // The URL constructor throws on anything it cannot parse.
     const parsed = new URL(candidate);
     return parsed.protocol === 'http:' || parsed.protocol === 'https:';
   } catch (error) {
@@ -37,18 +34,14 @@ function SettingsScreen() {
       return;
     }
     setFieldError('');
-    // Applying at once is a requirement stated on the course forum.
+    // Immediate effect, as the course forum requires.
     setRatesUrl(url);
   }
 
   /*
-    Restoring clears the stored override rather than writing today's default
-    into it. settings.js treats an empty string as "no preference" and falls
-    back to the constant on every read, so a user who restores keeps tracking
-    the default even if it is later changed in code. Writing the constant
-    would instead pin them to the value it happened to have at this moment.
-    The field still displays the constant, since an empty box would tell the
-    user nothing about where the rates are coming from.
+  Clears the override rather than writing the default into it, so a user
+  who restores keeps tracking the default even if it later changes. The
+  field still shows it, since an empty box would say nothing.
   */
   function handleRestore() {
     setUrl(DEFAULT_RATES_URL);
@@ -61,29 +54,25 @@ function SettingsScreen() {
       <Typography variant="overline" color="text.secondary">
         Exchange rates source
       </Typography>
-      {/* onSubmit runs isValidUrl before anything reaches the rates
-          service, so a bad URL never leaves this screen. */}
+      {/* Validated before anything reaches the rates service. */}
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'grid', gap: 2, mt: 2 }}>
         <TextField
           label="Rates URL"
           value={url}
           onChange={(event) => setUrl(event.target.value)}
           error={fieldError.length > 0}
-          /* helperText doubles as the field hint and the validation
-             message, so only one of them is visible at a time. */
+          /* Doubles as hint and validation message, one at a time. */
           helperText={fieldError.length > 0
             ? fieldError
             : 'The response must be JSON with USD, ILS, GBP and EURO.'}
         />
-        {/* Two separate actions rather than one toggle, since submitting a
-            URL and restoring the default are independent user intents. */}
+        {/* Two actions, not a toggle: they are independent intents. */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button type="submit" variant="contained">Use this URL</Button>
           <Button onClick={handleRestore}>Restore default</Button>
         </Box>
       </Box>
-      {/* The rates service keeps the previous rates on a failed refresh,
-          so this only reports the failure without hiding anything else. */}
+      {/* Previous rates survive a failed refresh, so this only reports it. */}
       {ratesState.status === 'error'
         ? <ErrorMessage error={ratesState.error} />
         : null}

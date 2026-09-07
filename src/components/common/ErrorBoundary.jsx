@@ -1,16 +1,14 @@
 import { Component } from 'react';
 import Alert from '@mui/material/Alert';
 
-// Catches a render time crash so the page shows a message rather than
-// going blank, which would be the worst possible thing on demo day.
+// Catches a render crash so the page shows a message, not a blank.
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { failed: false };
   }
 
-  // React calls this during the render phase of the next render after a
-  // descendant throws, so it must stay a pure state derivation.
+  // Called during render, so it must stay a pure state derivation.
   static getDerivedStateFromError() {
     return { failed: true };
   }
@@ -23,7 +21,7 @@ class ErrorBoundary extends Component {
         </Alert>
       );
     }
-    // No error yet: render children exactly as passed through.
+    // No error: pass the children straight through.
     return this.props.children;
   }
 }

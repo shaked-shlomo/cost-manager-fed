@@ -1,7 +1,7 @@
 import Chip from '@mui/material/Chip';
 import { useAppState } from '../../state/AppStateProvider.jsx';
 
-// Renders a clock time for the moment rates last loaded successfully.
+// Clock time of the last successful load.
 function formatTime(date) {
   if (date === null) {
     return '';
@@ -11,16 +11,14 @@ function formatTime(date) {
   return hours + ':' + minutes;
 }
 
-// The ambient indicator for the background rates service. It is the only
-// place the user sees that anything asynchronous is happening.
+// The only place the user sees the background service at work.
 function RatesStatus() {
   const { ratesState } = useAppState();
 
   if (ratesState.status === 'loading') {
     return <Chip size="small" variant="outlined" label="Loading rates" />;
   }
-  // The accent colour marks the one state where the numbers on screen
-  // are guaranteed fresh.
+  // Accent marks the one state where the numbers are fresh.
   if (ratesState.status === 'ready') {
     return (
       <Chip
@@ -32,8 +30,7 @@ function RatesStatus() {
     );
   }
 
-  // Status is 'error' here. Keep the previous timestamp visible when there
-  // is one, since stale-but-known rates are still useful context.
+  // On error, keep the old timestamp: stale but known is still useful.
   const suffix = ratesState.lastUpdatedAt === null
     ? ''
     : ', still using rates from ' + formatTime(ratesState.lastUpdatedAt);

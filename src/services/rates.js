@@ -4,8 +4,7 @@ import { setExchangeRates } from '../db/db.js';
 import { SUPPORTED_CURRENCIES } from '../db/constants.js';
 import { getRatesUrl, saveRatesUrl } from './settings.js';
 
-// Exchange rates move slowly, so a five minute poll is frequent enough to
-// stay current without making pointless requests.
+// Rates move slowly. Five minutes stays current without pointless calls.
 const RATES_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 let status = 'loading';
@@ -16,29 +15,24 @@ let timerId = null;
 const listeners = [];
 
 /*
-  notify runs after refreshRates has finished its own try/catch, and
-  refreshRates is deliberately called without await. A listener that threw
-  would therefore abandon every later listener and reject that floating
-  promise, which the browser reports as an unhandled rejection. Isolating
-  each listener keeps one broken subscriber from taking the rest with it.
+refreshRates is called without await, so a throwing listener would abandon
+the rest and reject a floating promise. Isolate each one.
 */
 function notify() {
   listeners.forEach((listener) => {
     try {
       listener();
     } catch (error) {
-      // A subscriber's own failure is not the rates service's problem.
+      // A subscriber's failure is not this service's problem.
     }
   });
 }
 
-// The returned function is how a caller detaches again, which React needs
-// as the cleanup of the effect that subscribed in the first place.
+// Returns the detach function React wants as its effect cleanup.
 function subscribe(listener) {
   listeners.push(listener);
   return function unsubscribe() {
-    // indexOf matches by identity, so subscribing the same function twice
-    // would need two calls to detach it. Callers subscribe once.
+    // Identity match. Callers subscribe once.
     const index = listeners.indexOf(listener);
     if (index !== -1) {
       listeners.splice(index, 1);
@@ -46,8 +40,7 @@ function subscribe(listener) {
   };
 }
 
-// Read as one snapshot so a component never sees a half updated status,
-// for example a 'ready' paired with the previous timestamp.
+// One snapshot, so no component sees a half updated status.
 function getRatesState() {
   return {
     status: status,
@@ -56,30 +49,25 @@ function getRatesState() {
   };
 }
 
-// Errors carry a code because the UI switches on it to choose which
-// message to show and where to place it.
+// The UI switches on the code to choose a message and a place for it.
 function failure(code, message) {
   const error = new Error(message);
   error.code = code;
   return error;
 }
 
-// Rejects anything that is not a complete, positive rates map. Being
-// strict here is what keeps a bad response from poisoning good rates.
+// Strict here is what keeps a bad response from poisoning good rates.
 function validateRates(payload) {
   if (payload === null || typeof payload !== 'object') {
     throw failure('RATES_BAD_SHAPE',
       'the exchange rates response is not an object');
   }
-  // A rate of zero or below would make convert divide by zero or return a
-  // negative amount, so an incomplete payload is rejected outright rather
-  // than half applied.
+  // Zero or below would divide by zero or go negative, so reject outright.
   SUPPORTED_CURRENCIES.forEach((currency) => {
     const value = payload[currency];
     if (typeof value !== 'number' || Number.isFinite(value) === false
         || value <= 0) {
-      // Naming the currency makes the Settings error actionable: the user
-      // learns which key their own JSON is missing.
+      // Naming it tells the user which key their JSON is missing.
       throw failure('RATES_BAD_SHAPE',
         'the exchange rates response is missing a currency: ' + currency);
     }
@@ -87,9 +75,8 @@ function validateRates(payload) {
 }
 
 /*
-  Fetches the rates once. A sequence number guards against an older
-  request resolving after a newer one, which would otherwise let a slow
-  response from a previous URL overwrite the rates just loaded.
+Fetches once. The sequence number stops a slow older request from
+overwriting rates a newer one already loaded.
 */
 async function refreshRates() {
   requestSequence = requestSequence + 1;
@@ -104,7 +91,7 @@ async function refreshRates() {
     }
 
     let payload = null;
-    // Parse JSON response, treating parse errors as fetch failures
+    // A parse error is a fetch failure like any other.
     try {
       payload = await response.json();
     } catch (error) {
@@ -113,23 +100,21 @@ async function refreshRates() {
     }
     validateRates(payload);
 
-    // A superseded request must not touch any shared state.
+    // A superseded request touches nothing.
     if (mySequence !== requestSequence) {
       return;
     }
-    // Pushing into the library is what lets getReport stay synchronous.
-    // Nothing is persisted here: rates are refetched on every page load.
+    // Pushing them in is what lets getReport stay synchronous.
     setExchangeRates(payload);
     status = 'ready';
     lastUpdatedAt = new Date();
     lastError = null;
   } catch (error) {
-    // Same guard as the success path: a stale failure must not overwrite
-    // the status of a newer request that has already succeeded.
+    // A stale failure must not overwrite a newer success.
     if (mySequence !== requestSequence) {
       return;
     }
-    // The previously loaded rates stay in place on purpose.
+    // The rates already loaded stay in place.
     status = 'error';
     lastError = error.code === undefined
       ? failure('RATES_NETWORK_ERROR', 'could not reach the rates URL')
@@ -138,8 +123,7 @@ async function refreshRates() {
   notify();
 }
 
-// Called once at start up. Loads rates immediately and then keeps them
-// fresh for as long as the page is open.
+// Called once at start up: load now, then keep them fresh.
 function startRates() {
   refreshRates();
   if (timerId === null) {
@@ -156,7 +140,5 @@ function setRatesUrl(url) {
   refreshRates();
 }
 
-// Public API for rate management and subscription
-// Only what the application actually consumes. refreshRates and the poll
-// interval stay private: startRates is the single entry point that arms both.
+// Only what the app consumes. startRates is the single entry point.
 export { startRates, setRatesUrl, getRatesState, subscribe };

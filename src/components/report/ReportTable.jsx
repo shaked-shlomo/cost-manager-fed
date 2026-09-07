@@ -6,20 +6,17 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { MONTH_NAMES } from '../common/PeriodSelector.jsx';
 
-// Formats a figure with two decimals and its own currency symbol. Rows
-// are shown in the currency they were entered in, never converted.
+// Two decimals and the row's own currency, never converted.
 function formatAmount(sum, currency) {
   return sum.toFixed(2) + ' ' + currency;
 }
 
 /*
-  Rebuilds the full calendar date for one row. getReport deliberately returns
-  only the day on each row, because that is the exact shape the project
-  document specifies, so the month and year are read from the report itself
-  rather than widening the library's return value.
+getReport returns only the day, which is the shape the document specifies,
+so the month and year come from the report rather than from the row.
 */
 function formatDate(year, month, day) {
-  // MONTH_NAMES is indexed 0-11 while the report months are 1-12.
+  // MONTH_NAMES is 0-11, report months are 1-12.
   return day + ' ' + MONTH_NAMES[month - 1] + ' ' + year;
 }
 
@@ -43,8 +40,7 @@ function ReportTable({ report }) {
         </TableRow>
       </TableHead>
       <TableBody>
-        {/* Each row keeps report.costs' own sum and currency: only the
-            total below is converted to the currency the user picked. */}
+        {/* Rows keep their own currency. Only the total converts. */}
         {report.costs.map((row, index) => (
           <TableRow key={index}>
             <TableCell>{formatDate(report.year, report.month, row.date.day)}</TableCell>
@@ -53,8 +49,8 @@ function ReportTable({ report }) {
             <TableCell align="right">{formatAmount(row.sum, row.currency)}</TableCell>
           </TableRow>
         ))}
-        {/* border: 0 keeps this row visually attached to the last data
-            row instead of reading as a new table section. */}
+        {/* No border, so it attaches to the last row rather than reading
+        as a new section. */}
         <TableRow>
           <TableCell colSpan={3} sx={{ fontWeight: 700, border: 0 }}>Total</TableCell>
           <TableCell align="right" sx={{ fontWeight: 700, border: 0 }}>

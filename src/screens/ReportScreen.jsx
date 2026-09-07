@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
-// Local imports: the library, its shared constants and app-wide state.
+// The library, its constants and app-wide state.
 import { openCostsDB } from '../db/db.js';
 import { DATABASE_NAME, DATABASE_VERSION } from '../db/constants.js';
 import { useAppState } from '../state/AppStateProvider.jsx';
@@ -10,14 +10,11 @@ import ErrorMessage from '../components/common/ErrorMessage.jsx';
 import ReportTable from '../components/report/ReportTable.jsx';
 
 function ReportScreen() {
-  // Consuming the context at all is what makes this screen recompute: the
-  // provider hands out a fresh value identity whenever a cost is added or
-  // the rates change, which re-renders every consumer. See AppStateProvider.
+  // Consuming the context is what makes this screen recompute.
   const { ratesState } = useAppState();
   const [period, setPeriod] = useState(currentPeriod);
 
-  // getReport runs on every render rather than in an effect, so the table
-  // is always in step with the period picked and with the latest stored data.
+  // On every render, not in an effect, so the table is never stale.
   let report = null;
   let error = null;
   try {
@@ -33,8 +30,7 @@ function ReportScreen() {
       {ratesState.status === 'loading' ? (
         <Alert severity="info" sx={{ mb: 2 }}>Loading exchange rates.</Alert>
       ) : null}
-      {/* On failure ErrorMessage replaces the table rather than the two
-          rendering side by side with stale or partial data. */}
+      {/* On failure the message replaces the table, never sits beside it. */}
       {error === null ? <ReportTable report={report} /> : <ErrorMessage error={error} />}
     </Paper>
   );

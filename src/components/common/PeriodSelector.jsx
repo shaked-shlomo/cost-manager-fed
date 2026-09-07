@@ -8,9 +8,8 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-// Defaults to the current month and year in USD, matching the document's
-// statement that USD is the application's main currency. Shared by the
-// report and charts screens so both open on the same period.
+// Current month and year in USD, the document's main currency. Shared,
+// so both screens open on the same period.
 function currentPeriod() {
   const today = new Date();
   return {
@@ -20,8 +19,7 @@ function currentPeriod() {
   };
 }
 
-// Offers the current year and the four before it, which covers any data
-// a user of this application could plausibly have entered.
+// This year and the four before it.
 function yearOptions() {
   const current = new Date().getFullYear();
   const years = [];
@@ -33,11 +31,9 @@ function yearOptions() {
   return years;
 }
 
-// Shared by the report and the charts so the two screens cannot drift
-// apart in how a period is chosen.
+// Shared, so the two screens cannot drift apart.
 function PeriodSelector({ value, onChange, showMonth }) {
-  // Spreads the previous value so the other two fields are preserved
-  // when only one selector changes.
+  // Spread, so changing one field preserves the other two.
   function update(field, next) {
     onChange({ ...value, [field]: next });
   }
@@ -52,15 +48,13 @@ function PeriodSelector({ value, onChange, showMonth }) {
           onChange={(event) => update('month', Number(event.target.value))}
           sx={{ minWidth: 150 }}
         >
-          {/* index + 1 keeps the option values 1-based, matching month
-              everywhere else in the app. */}
+          {/* 1-based, matching month everywhere else. */}
           {MONTH_NAMES.map((name, index) => (
             <MenuItem key={name} value={index + 1}>{name}</MenuItem>
           ))}
         </TextField>
       ) : null}
-      {/* Year is always shown, unlike month, since every screen that
-          reuses this selector needs at least a year to scope its data. */}
+      {/* Always shown: every screen needs at least a year. */}
       <TextField
         select
         label="Year"
@@ -72,9 +66,7 @@ function PeriodSelector({ value, onChange, showMonth }) {
           <MenuItem key={year} value={year}>{year}</MenuItem>
         ))}
       </TextField>
-      {/* Currency is requested from getReport, not applied client side,
-          so the row values below stay in whatever currency they were
-          entered in - only the report total reflects this selection. */}
+      {/* Passed to getReport, so only the total reflects this choice. */}
       <TextField
         select
         label="Currency"

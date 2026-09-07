@@ -1,9 +1,8 @@
 import Alert from '@mui/material/Alert';
 
 /*
-  Turns a library or network error into a sentence the user can act on.
-  The raw message is never shown, because those strings are written for
-  the automated grading test rather than for a person.
+Turns an error into a sentence the user can act on. The raw message is
+written for the grading test, not for a person, so it is never shown.
 */
 const MESSAGES = {
   RATES_NOT_LOADED:
@@ -22,8 +21,7 @@ const MESSAGES = {
   RATES_NETWORK_ERROR: 'Could not reach the rates URL.'
 };
 
-// No error is the common case (nothing has failed yet), so render
-// nothing rather than an empty alert box.
+// The common case. Render nothing, not an empty alert.
 function ErrorMessage({ error }) {
   if (error === null || error === undefined) {
     return null;

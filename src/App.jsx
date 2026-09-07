@@ -6,18 +6,16 @@ import ReportScreen from './screens/ReportScreen.jsx';
 import ChartsScreen from './screens/ChartsScreen.jsx';
 import SettingsScreen from './screens/SettingsScreen.jsx';
 
-// All four screens from Tasks 10 to 13 are now wired to their tabs.
+// Maps the four tabs to the four screens.
 function App() {
   const [tab, setTab] = useState(0);
 
   return (
     <AppLayout tab={tab} onTabChange={setTab}>
-      {/* key={tab} remounts the boundary on every tab change. Without it a
-          crash on one screen latches its failed state on, and every other
-          tab would keep rendering the fallback instead of its own content. */}
+      {/* key remounts the boundary per tab, so one crash cannot latch the
+      fallback on for every other tab. */}
       <ErrorBoundary key={tab}>
-        {/* tab is 0-based tab position here, unrelated to the 1-based
-            month values used elsewhere in the app. */}
+        {/* 0-based position, unrelated to the 1-based months elsewhere. */}
         {tab === 0 ? (
           <ReportScreen />
         ) : tab === 1 ? (

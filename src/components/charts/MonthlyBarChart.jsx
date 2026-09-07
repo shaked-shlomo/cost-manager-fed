@@ -6,22 +6,19 @@ const MONTH_LABELS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-// One bar per month of the selected year, in the selected currency.
+// One bar per month, in the selected currency.
 function MonthlyBarChart({ totals, currency }) {
   const theme = useTheme();
 
   return (
     <BarChart
       height={320}
-      // Band scale spaces all twelve months evenly, including the
-      // ones with a zero total, unlike a continuous numeric axis.
+      // Band spaces all twelve evenly, zero totals included.
       xAxis={[{ scaleType: 'band', data: MONTH_LABELS }]}
       series={[{
         data: totals,
         color: theme.palette.primary.main,
-        // getMonthlyTotals always returns numbers, never null, but the
-        // library types a bar value as number | null, so this guards
-        // against a null reaching toFixed and throwing during render.
+        // The library types a bar value as number | null, so guard toFixed.
         valueFormatter: (value) => (value === null ? '' : value.toFixed(2) + ' ' + currency)
       }]}
     />
