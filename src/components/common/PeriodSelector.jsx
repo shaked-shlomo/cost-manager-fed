@@ -90,5 +90,5 @@ function PeriodSelector({ value, onChange, showMonth }) {
   );
 }
 
-export { currentPeriod };
+export { currentPeriod, MONTH_NAMES };
 export default PeriodSelector;

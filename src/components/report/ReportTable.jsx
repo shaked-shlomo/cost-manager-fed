@@ -4,11 +4,23 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import { MONTH_NAMES } from '../common/PeriodSelector.jsx';
 
 // Formats a figure with two decimals and its own currency symbol. Rows
 // are shown in the currency they were entered in, never converted.
 function formatAmount(sum, currency) {
   return sum.toFixed(2) + ' ' + currency;
+}
+
+/*
+  Rebuilds the full calendar date for one row. getReport deliberately returns
+  only the day on each row, because that is the exact shape the project
+  document specifies, so the month and year are read from the report itself
+  rather than widening the library's return value.
+*/
+function formatDate(year, month, day) {
+  // MONTH_NAMES is indexed 0-11 while the report months are 1-12.
+  return day + ' ' + MONTH_NAMES[month - 1] + ' ' + year;
 }
 
 function ReportTable({ report }) {
@@ -24,7 +36,7 @@ function ReportTable({ report }) {
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell>Day</TableCell>
+          <TableCell>Date</TableCell>
           <TableCell>Category</TableCell>
           <TableCell>Description</TableCell>
           <TableCell align="right">Amount</TableCell>
@@ -35,7 +47,7 @@ function ReportTable({ report }) {
             total below is converted to the currency the user picked. */}
         {report.costs.map((row, index) => (
           <TableRow key={index}>
-            <TableCell>{row.date.day}</TableCell>
+            <TableCell>{formatDate(report.year, report.month, row.date.day)}</TableCell>
             <TableCell>{row.category}</TableCell>
             <TableCell>{row.description}</TableCell>
             <TableCell align="right">{formatAmount(row.sum, row.currency)}</TableCell>
