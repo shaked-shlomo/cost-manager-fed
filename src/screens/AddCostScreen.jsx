@@ -31,8 +31,8 @@ function AddCostScreen() {
   const [saved, setSaved] = useState(false);
 
   /*
-  Both touch storage and can throw. Caught here so ErrorMessage can give
-  specific advice; escaping would reach the boundary's generic wording.
+    Both touch storage and can throw. Caught here so ErrorMessage can give
+    specific advice; escaping would reach the boundary's generic wording.
   */
   let costsDB = null;
   let suggestions = [];

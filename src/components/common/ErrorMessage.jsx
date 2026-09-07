@@ -1,8 +1,8 @@
 import Alert from '@mui/material/Alert';
 
 /*
-Turns an error into a sentence the user can act on. The raw message is
-written for the grading test, not for a person, so it is never shown.
+  Turns an error into a sentence the user can act on. The raw message is
+  written for the grading test, not for a person, so it is never shown.
 */
 const MESSAGES = {
   RATES_NOT_LOADED:

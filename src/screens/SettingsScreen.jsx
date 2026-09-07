@@ -39,9 +39,9 @@ function SettingsScreen() {
   }
 
   /*
-  Clears the override rather than writing the default into it, so a user
-  who restores keeps tracking the default even if it later changes. The
-  field still shows it, since an empty box would say nothing.
+    Clears the override rather than writing the default into it, so a user
+    who restores keeps tracking the default even if it later changes. The
+    field still shows it, since an empty box would say nothing.
   */
   function handleRestore() {
     setUrl(DEFAULT_RATES_URL);

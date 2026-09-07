@@ -1,10 +1,10 @@
 // --- packaging: begin ---
 /*
-db.js - wraps localStorage for the Cost Manager application.
+  db.js - wraps localStorage for the Cost Manager application.
 
-ES module version, imported by React. It never fetches: rates.js owns
-that and pushes rates in through setExchangeRates. Its twin is
-vanilla/db.js, and check-db-parity.mjs fails the tests if they drift.
+  ES module version, imported by React. It never fetches: rates.js owns
+  that and pushes rates in through setExchangeRates. Its twin is
+  vanilla/db.js, and check-db-parity.mjs fails the tests if they drift.
 */
 // --- packaging: end ---
 'use strict';
@@ -135,8 +135,8 @@ function validateReportArguments(currency, year, month) {
 }
 
 /*
-Rates are units per one USD, so divide by the source rate to reach USD
-and multiply by the target. GBP at 0.5: 120 / 0.5 = 240 USD.
+  Rates are units per one USD, so divide by the source rate to reach USD
+  and multiply by the target. GBP at 0.5: 120 / 0.5 = 240 USD.
 */
 function convert(sum, fromCurrency, toCurrency) {
   if (fromCurrency === toCurrency) {
@@ -200,8 +200,8 @@ function openCostsDB(databaseName, databaseVersion) {
   }
 
   /*
-  Rows keep the sum and currency they were saved with. Only the total is
-  converted, as in the document's example: a 120 GBP row stays 120 GBP.
+    Rows keep the sum and currency they were saved with. Only the total is
+    converted, as in the document's example: a 120 GBP row stays 120 GBP.
   */
   function getReport(currency, year, month) {
     // Default to the current month and year.
@@ -242,14 +242,14 @@ function openCostsDB(databaseName, databaseVersion) {
   }
 
   /*
-  Every row converts here, unlike getReport, because pie slices have to
-  share one unit.
+    Every row converts here, unlike getReport, because pie slices have to
+    share one unit.
   */
   function getCategoryTotals(currency, year, month) {
     const report = getReport(currency, year, month);
     /*
-    Null prototype on purpose. A category named toString would read back
-    an inherited member, and one named __proto__ would never be stored.
+      Null prototype on purpose. A category named toString would read back
+      an inherited member, and one named __proto__ would never be stored.
     */
     const byCategory = Object.create(null);
 

@@ -12,8 +12,8 @@ function formatAmount(sum, currency) {
 }
 
 /*
-getReport returns only the day, which is the shape the document specifies,
-so the month and year come from the report rather than from the row.
+  getReport returns only the day, which is the shape the document specifies,
+  so the month and year come from the report rather than from the row.
 */
 function formatDate(year, month, day) {
   // MONTH_NAMES is 0-11, report months are 1-12.

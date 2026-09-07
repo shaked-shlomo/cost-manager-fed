@@ -37,9 +37,9 @@ function saveRatesUrl(url) {
     window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   } catch (error) {
     /*
-    Private browsing can refuse. Swallowed on purpose: rates.js refreshes
-    regardless, so the choice holds for this session and only fails to
-    survive a reload. Throwing here would escape the event handler.
+      Private browsing can refuse. Swallowed on purpose: rates.js refreshes
+      regardless, so the choice holds for this session and only fails to
+      survive a reload. Throwing here would escape the event handler.
     */
   }
 }

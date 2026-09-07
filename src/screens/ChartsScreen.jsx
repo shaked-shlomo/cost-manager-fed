@@ -30,8 +30,8 @@ function ChartsScreen() {
   }
 
   /*
-  One tree rather than an early return, so the period selector is declared
-  once and the two copies cannot drift.
+    One tree rather than an early return, so the period selector is declared
+    once and the two copies cannot drift.
   */
   return (
     <Paper sx={{ p: 3 }}>

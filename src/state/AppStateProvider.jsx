@@ -4,16 +4,16 @@ import { subscribe, getRatesState } from '../services/rates.js';
 const AppStateContext = createContext(null);
 
 /*
-The two pieces of state that cross screens: the rates status, and a
-counter that ticks whenever a cost is added.
+  The two pieces of state that cross screens: the rates status, and a
+  counter that ticks whenever a cost is added.
 */
 function AppStateProvider({ children }) {
   const [ratesState, setRatesState] = useState(getRatesState);
   const [dataVersion, setDataVersion] = useState(0);
 
   /*
-  The snapshot is taken during render but this runs after commit, so
-  re-read once before subscribing to catch anything that landed between.
+    The snapshot is taken during render but this runs after commit, so
+    re-read once before subscribing to catch anything that landed between.
   */
   useEffect(() => {
     setRatesState(getRatesState());
@@ -22,9 +22,9 @@ function AppStateProvider({ children }) {
   }, []);
 
   /*
-  A new object identity on every change is what re-renders all four
-  screens. dataVersion is a change token, not a value to read. Do not
-  stabilise this identity without replacing the mechanism.
+    A new object identity on every change is what re-renders all four
+    screens. dataVersion is a change token, not a value to read. Do not
+    stabilise this identity without replacing the mechanism.
   */
   const value = useMemo(() => {
     return {

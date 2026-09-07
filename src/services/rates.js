@@ -15,8 +15,8 @@ let timerId = null;
 const listeners = [];
 
 /*
-refreshRates is called without await, so a throwing listener would abandon
-the rest and reject a floating promise. Isolate each one.
+  refreshRates is called without await, so a throwing listener would abandon
+  the rest and reject a floating promise. Isolate each one.
 */
 function notify() {
   listeners.forEach((listener) => {
@@ -75,8 +75,8 @@ function validateRates(payload) {
 }
 
 /*
-Fetches once. The sequence number stops a slow older request from
-overwriting rates a newer one already loaded.
+  Fetches once. The sequence number stops a slow older request from
+  overwriting rates a newer one already loaded.
 */
 async function refreshRates() {
   requestSequence = requestSequence + 1;

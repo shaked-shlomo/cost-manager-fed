@@ -1,7 +1,7 @@
 /*
-Assertion suite for db.js. Dependency free, so the same file runs in the
-browser and under Node. Takes db as an argument, so it can point at either
-build.
+  Assertion suite for db.js. Dependency free, so the same file runs in the
+  browser and under Node. Takes db as an argument, so it can point at either
+  build.
 */
 (function (root) {
   'use strict';
