@@ -4,7 +4,7 @@
 
   ES module version, imported by React. It never fetches: rates.js owns
   that and pushes rates in through setExchangeRates. Its twin is
-  vanilla/db.js, and check-db-parity.mjs fails the tests if they drift.
+  vanilla/db.js, and check_db_parity.mjs fails the tests if they drift.
 */
 // --- packaging: end ---
 'use strict';

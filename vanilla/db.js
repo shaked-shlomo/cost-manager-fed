@@ -4,7 +4,7 @@
 
   Vanilla version, the one submitted on its own. A plain script element
   adds db to the global object, as the project document requires. Its
-  twin is src/db/db.js, and check-db-parity.mjs fails if they drift.
+  twin is src/db/db.js, and check_db_parity.mjs fails if they drift.
 */
 // --- packaging: end ---
 (function (root) {

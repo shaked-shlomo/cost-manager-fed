@@ -83,10 +83,10 @@ npm run dev
 | Page | What it does |
 |---|---|
 | `vanilla/test.html` | The test page from the project document, unchanged. Logs to the console. |
-| `vanilla/self-test.html` | The full assertion suite, printed onto the page itself. |
+| `vanilla/self_test.html` | The full assertion suite, printed onto the page itself. |
 
 Serve them over HTTP rather than opening the files directly. `npm run dev` already
-does, at `http://localhost:5173/vanilla/self-test.html` and `/vanilla/test.html`.
+does, at `http://localhost:5173/vanilla/self_test.html` and `/vanilla/test.html`.
 Clear the site data first: costs persist, so a second run adds to the totals of the
 first.
 

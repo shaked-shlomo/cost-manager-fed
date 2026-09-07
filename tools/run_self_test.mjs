@@ -34,7 +34,7 @@ globalThis.localStorage = new MemoryStorage();
 
 // Load the vanilla library and the suite the same way a browser would.
 const root = process.cwd();
-const files = ['vanilla/db.js', 'vanilla/self-test.js'];
+const files = ['vanilla/db.js', 'vanilla/self_test.js'];
 files.forEach((relative) => {
   const source = fs.readFileSync(path.join(root, relative), 'utf8');
   // eslint-disable-next-line no-new-func

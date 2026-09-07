@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:db": "node tools/run-self-test.mjs",
-    "test:parity": "node tools/check-db-parity.mjs",
+    "test:db": "node tools/run_self_test.mjs",
+    "test:parity": "node tools/check_db_parity.mjs",
     "test": "npm run test:db && npm run test:parity"
   },
   "dependencies": {
